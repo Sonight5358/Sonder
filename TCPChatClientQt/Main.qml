@@ -130,7 +130,7 @@ ApplicationWindow{
                 id: sendButton
 
                 anchors.bottom: messageSendArea.bottom
-                anchors.bottomMargin: 5
+                anchors.bottomMargin: 6
                 anchors.right: messageSendArea.right
                 anchors.rightMargin: 5
 

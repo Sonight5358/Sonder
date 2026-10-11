@@ -74,21 +74,6 @@ Item{
 
             x: 20 * (1 - root.collapse) + (parent.width - width) / 2 * root.collapse
         }
-    }
-
-    // Button
-    Button{
-        id: button
-
-        anchors.fill: chatInfoBottom
-        anchors.margins: -20
-
-        onClicked: {
-        }
-
-        background: Rectangle{
-            color: "transparent"
-        }
 
         HoverHandler{
             id: hoverHandler

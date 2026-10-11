@@ -15,6 +15,7 @@ Item{
     property int rightContentMargin
     property double opacityPanels
     property font appTextFont
+    property real borderOpacity
 
     RectangularShadow{
         id: rectShadow
@@ -28,12 +29,29 @@ Item{
         color: Qt.rgba(0, 0, 0, opacityPanels - 0.1)
     }
 
+    NumberAnimation{
+        id: borderAnimation
+        target: root
+        property: "borderOpacity"
+        easing.type: Easing.OutCubic
+    }
+
     Rectangle{
         id: rectBottom
         anchors.fill: parent
 
         color: Qt.alpha(panelsColor, opacityPanels)
         radius: 30
+
+        border.width: 1
+        border.color: Qt.alpha(borderColor, 1 * borderOpacity)
+
+        Behavior on opacity{
+            NumberAnimation{
+                duration: 150
+                easing.type: Easing.OutCubic
+            }
+        }
 
         Behavior on height{
                 NumberAnimation{
@@ -107,6 +125,17 @@ Item{
                 placeholderTextColor: Qt.alpha(textColor, 0.6)
 
                 wrapMode: TextEdit.Wrap
+            }
+        }
+
+        HoverHandler{
+            id: hoverHandler
+
+            onHoveredChanged: {
+                borderAnimation.stop()
+                borderAnimation.to = hovered ? 1 : 0
+                borderAnimation.duration = 150
+                borderAnimation.start()
             }
         }
     }

@@ -1,16 +1,14 @@
-# TCP Socket Chat in C++
+# Sonder
 
-A small console chat built on raw sockets (Winsock2). It consists of a server and a client and was written to practice C++ and CMake. It currently has a console-only version.
+Sonder is a work-in-progress TCP chat application built to practice C++, Windows API, CMake, and Qt Quick/QML.
 
 ## Features
 
-- Separate `TCPServer` and `TCPClient` executables
 - Socket wrapper for IPv4 and IPv6
 - Plain TCP over Winsock2, no third-party dependencies
 - Retry mechanism for failed operations
 - Multithreaded message receiving
 - Graceful connection shutdown with /exit
-- Handling of partial `send()` operations
 - CMake-based build system
 
 ## Requirements
@@ -22,7 +20,7 @@ A small console chat built on raw sockets (Winsock2). It consists of a server an
 ## Build
 
 ```bash
-git clone https://github.com/Sonight5358/TCP-Socket-chat-on-CPP.git
+git clone https://github.com/Sonight5358/Sonder.git
 cd TCP-Socket-chat-on-CPP
 
 cmake -S . -B build
@@ -52,4 +50,6 @@ cmake --build build --config Release
 
 ## Resources
 
-Built while studying the [Microsoft Winsock documentation](https://learn.microsoft.com/en-us/windows/win32/winsock/windows-sockets-start-page-2) and the [CMake documentation](https://cmake.org/cmake/help/latest/).
+[Microsoft Winsock documentation](https://learn.microsoft.com/en-us/windows/win32/winsock/windows-sockets-start-page-2)
+[CMake documentation](https://cmake.org/cmake/help/latest/)
+[Qt Quick documentation](https://doc.qt.io/qt-6/qtquick-index.html)

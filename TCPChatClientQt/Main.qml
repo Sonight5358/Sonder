@@ -1,0 +1,163 @@
+import QtQuick
+import QtQuick.Controls.Basic
+import "components"
+
+ApplicationWindow{
+    id: appWindow
+
+    width: 1280
+    height: 720
+    minimumWidth: 1280
+    minimumHeight: 720
+
+    visible: true
+    color: "transparent"
+    title: "Sonder"
+    font: appFont
+    opacity: 1
+    FontLoader{
+        id: manrope
+        source: "qrc:/qt/qml/TCPChatClientQt/fonts/Manrope-VariableFont_wght.ttf"
+    }
+
+    property color panelsColor: "#0A0A0A"
+    property color mainColor: "#171717"
+    property color textColor:  "#E5E4E2"
+    property color borderColor: "#686868"
+    property int marginEl: 10
+    property int marginChatsField: 6
+    property int marginTopBottom: 5
+    property double opacityPanels: 0.6
+    property int windowsRadius: 8
+    property font appFont: Qt.font({family: manrope.name, weight: 600, pixelSize: 22})
+    property font appTextFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 18})
+    property font appSmallFont: Qt.font({family: manrope.name, weight: 600, pixelSize: 14})
+    property Gradient defaultGrad: Gradient{
+        GradientStop{
+                position: 0.0
+                color: Qt.alpha("#2E2E2E", opacityPanels)
+        }
+        GradientStop{
+                position: 1.0
+                color: Qt.alpha("#0C0C0C", opacityPanels)
+        }
+    }
+    property Gradient defaultGradInverted: Gradient{
+        GradientStop{
+                position: 0.0
+                color: Qt.alpha("#0C0C0C", opacityPanels)
+        }
+        GradientStop{
+                position: 1.0
+                color: Qt.alpha("#2E2E2E", opacityPanels)
+        }
+    }
+
+
+
+
+    // Field with messages
+    Chat{
+        id: rectChat
+
+        anchors.top: parent.top
+        anchors.topMargin: marginEl
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: marginEl
+        anchors.left: rectLeft.right
+        anchors.leftMargin: marginChatsField
+        anchors.right: parent.right
+        anchors.rightMargin: marginEl
+
+        panelsColor: appWindow.panelsColor
+        mainColor: appWindow.mainColor
+        textColor: appWindow.textColor
+        borderColor: appWindow.borderColor
+        opacityPanels: appWindow.opacityPanels
+        appTextFont: appWindow.appTextFont
+        defaultGrad: appWindow.defaultGrad
+        windowsRadius: appWindow.windowsRadius
+        marginChatsField: appWindow.marginChatsField
+
+        Component.onCompleted: rectChat.addMessage("test", true)
+    }
+
+    // List of chats
+    People{
+        id: rectLeft
+
+        anchors.left: parent.left
+        anchors.leftMargin: marginEl
+        anchors.top: parent.top
+        anchors.topMargin: marginEl
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: marginEl
+
+        widthPanel: 300
+        panelsColor: appWindow.panelsColor
+        mainColor: appWindow.mainColor
+        textColor: appWindow.textColor
+        borderColor: appWindow.borderColor
+        opacityPanels: appWindow.opacityPanels
+        appTextFont: appWindow.appTextFont
+        defaultGrad: appWindow.defaultGrad
+        windowsRadius: appWindow.windowsRadius
+        marginChatsField: appWindow.marginChatsField
+
+        width: widthPanel
+    }
+
+    // Area of sending messages with a button
+    MessageSendArea{
+        id: messageSendArea
+
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 50
+        anchors.left: rectLeft.right
+        anchors.leftMargin: 50
+        anchors.right: parent.right
+        anchors.rightMargin: 50
+
+        panelsColor: appWindow.panelsColor
+        mainColor: appWindow.mainColor
+        textColor: appWindow.textColor
+        borderColor: appWindow.borderColor
+        opacityPanels: appWindow.opacityPanels
+        appTextFont: appWindow.appTextFont
+        rightContentMargin: sendButton.width + 15
+
+        SendButton{
+                id: sendButton
+
+                anchors.bottom: messageSendArea.bottom
+                anchors.bottomMargin: 5
+                anchors.right: messageSendArea.right
+                anchors.rightMargin: 5
+
+                isEmpty: messageSendArea.isEmpty
+                panelsColor: appWindow.panelsColor
+                mainColor: appWindow.mainColor
+                textColor: appWindow.textColor
+                appFont: appWindow.appFont
+        }
+    }
+
+    // Info about current chat
+    ChatInformation{
+        id: chatInformation
+
+        anchors.top: parent.top
+        anchors.topMargin: chatTopMargin
+        anchors.left: rectLeft.right
+        anchors.leftMargin: chatLeftMargin
+        anchors.right: parent.right
+        anchors.rightMargin: chatRightMargin
+
+        panelsColor: appWindow.panelsColor
+        mainColor: appWindow.mainColor
+        textColor: appWindow.textColor
+        borderColor: appWindow.borderColor
+        opacityPanels: appWindow.opacityPanels
+        appTextFont: appWindow.appTextFont
+    }
+}

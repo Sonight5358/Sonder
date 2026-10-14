@@ -22,6 +22,13 @@ Item{
     width: actualButton
     height: actualButton
 
+    function startSend(){
+        soundPlayer.play()
+        lottieController.frameRate = 90
+        ringBoost.start()
+        ringTimer.start()
+    }
+
     // Glow effect of ring's animation
     MultiEffect{
         id: bigGlow
@@ -109,11 +116,11 @@ Item{
         scale: button.hovered ? 1.2 : 1.0
 
         Behavior on scale {
-                NumberAnimation {
-                    duration: 100
-                    easing.type: Easing.InOutCubic
-                }
+            NumberAnimation {
+                duration: 100
+                easing.type: Easing.InOutCubic
             }
+        }
 
         radius: width / 2
         color: mainColor
@@ -136,10 +143,7 @@ Item{
         onClicked: {
             root.clicked()
 
-            soundPlayer.play()
-            lottieController.frameRate = 90
-            ringBoost.start()
-            ringTimer.start()
+            startSend()
         }
 
         contentItem: Text{

@@ -18,6 +18,7 @@ Item{
     property real borderOpacity
 
     signal sendRequested(string message)
+    signal toButton()
 
     function send(){
         if (isEmpty){
@@ -136,6 +137,20 @@ Item{
                 placeholderTextColor: Qt.alpha(textColor, 0.6)
 
                 wrapMode: TextEdit.Wrap
+
+                Keys.onPressed: function(event){
+                    if (event.key !== Qt.Key_Return && event.key !== Qt.Key_Enter){
+                        return
+                    }
+                    if(event.modifiers & Qt.ShiftModifier){
+                        return
+                    }
+                    event.accepted = true
+                    if(!root.isEmpty){
+                        root.toButton()
+                        root.send()
+                    }
+                }
             }
         }
 

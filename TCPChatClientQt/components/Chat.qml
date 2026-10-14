@@ -63,12 +63,12 @@ Item{
             model: messageModel
 
             header: Item{
-                width: messagesView.width
+                width: entireChat.width
                 height: root.sendAreaHeight + 12
             }
 
             footer: Item{
-                width: messagesView.width
+                width: entireChat.width
                 height: marginChatsField * 2
             }
 

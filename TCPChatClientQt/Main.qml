@@ -131,6 +131,10 @@ ApplicationWindow{
         appTextFont: appWindow.appTextFont
         rightContentMargin: sendButton.width + 15
 
+        onToButton: function(){
+            sendButton.startSend()
+        }
+
         SendButton{
             id: sendButton
 

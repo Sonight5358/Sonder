@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Basic
 import "components"
+import TCPChatClientQt
 
 ApplicationWindow{
     id: appWindow
@@ -34,22 +35,22 @@ ApplicationWindow{
     property font appSmallFont: Qt.font({family: manrope.name, weight: 600, pixelSize: 14})
     property Gradient defaultGrad: Gradient{
         GradientStop{
-                position: 0.0
-                color: Qt.alpha("#2E2E2E", opacityPanels)
+            position: 0.0
+            color: Qt.alpha("#2E2E2E", opacityPanels)
         }
         GradientStop{
-                position: 1.0
-                color: Qt.alpha("#0C0C0C", opacityPanels)
+            position: 1.0
+            color: Qt.alpha("#0C0C0C", opacityPanels)
         }
     }
     property Gradient defaultGradInverted: Gradient{
         GradientStop{
-                position: 0.0
-                color: Qt.alpha("#0C0C0C", opacityPanels)
+            position: 0.0
+            color: Qt.alpha("#0C0C0C", opacityPanels)
         }
         GradientStop{
-                position: 1.0
-                color: Qt.alpha("#2E2E2E", opacityPanels)
+            position: 1.0
+            color: Qt.alpha("#2E2E2E", opacityPanels)
         }
     }
 
@@ -78,8 +79,7 @@ ApplicationWindow{
         defaultGrad: appWindow.defaultGrad
         windowsRadius: appWindow.windowsRadius
         marginChatsField: appWindow.marginChatsField
-
-        Component.onCompleted: rectChat.addMessage("test", true)
+        sendAreaHeight: rectChat.y + rectChat.height - messageSendArea.y
     }
 
     // List of chats
@@ -111,6 +111,11 @@ ApplicationWindow{
     MessageSendArea{
         id: messageSendArea
 
+        onSendRequested: function(message){
+            rectChat.addMessage(message, true)
+            chatClient.messageReceived(message)
+        }
+
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 50
         anchors.left: rectLeft.right
@@ -127,18 +132,20 @@ ApplicationWindow{
         rightContentMargin: sendButton.width + 15
 
         SendButton{
-                id: sendButton
+            id: sendButton
 
-                anchors.bottom: messageSendArea.bottom
-                anchors.bottomMargin: 6
-                anchors.right: messageSendArea.right
-                anchors.rightMargin: 5
+            onClicked: messageSendArea.send()
 
-                isEmpty: messageSendArea.isEmpty
-                panelsColor: appWindow.panelsColor
-                mainColor: appWindow.mainColor
-                textColor: appWindow.textColor
-                appFont: appWindow.appFont
+            anchors.bottom: messageSendArea.bottom
+            anchors.bottomMargin: 6
+            anchors.right: messageSendArea.right
+            anchors.rightMargin: 5
+
+            isEmpty: messageSendArea.isEmpty
+            panelsColor: appWindow.panelsColor
+            mainColor: appWindow.mainColor
+            textColor: appWindow.textColor
+            appFont: appWindow.appFont
         }
     }
 
@@ -159,5 +166,15 @@ ApplicationWindow{
         borderColor: appWindow.borderColor
         opacityPanels: appWindow.opacityPanels
         appTextFont: appWindow.appTextFont
+    }
+
+    ChatClient{
+        id: chatClient
+    }
+    Connections{
+        target: chatClient
+        function onMessageReceived(message){
+            rectChat.addMessage(message, false)
+        }
     }
 }

@@ -17,6 +17,8 @@ Item{
     property color textColor
     property font appFont
 
+    signal clicked()
+
     width: actualButton
     height: actualButton
 
@@ -132,6 +134,8 @@ Item{
         }
 
         onClicked: {
+            root.clicked()
+
             soundPlayer.play()
             lottieController.frameRate = 90
             ringBoost.start()

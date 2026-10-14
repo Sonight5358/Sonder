@@ -17,6 +17,17 @@ Item{
     property font appTextFont
     property real borderOpacity
 
+    signal sendRequested(string message)
+
+    function send(){
+        if (isEmpty){
+            return
+        }
+
+        sendRequested(messageField.text)
+        messageField.clear()
+    }
+
     RectangularShadow{
         id: rectShadow
 
@@ -97,8 +108,8 @@ Item{
                 id: sbar
 
                 contentItem: Rectangle{
-                    implicitWidth: 5
-                    radius: 2.5
+                    implicitWidth: 4
+                    radius: implicitWidth / 2
                     color: textColor
                     opacity: sbar.active ? 0.7 : 0
 

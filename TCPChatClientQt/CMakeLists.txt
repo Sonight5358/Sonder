@@ -28,6 +28,8 @@ qt_add_qml_module(appTCPChatClientQt
         components/Chat.qml
         components/People.qml
 
+    SOURCES Chatclient.h Chatclient.cpp
+
     RESOURCES
         assets/SomethingInteresting.json
         assets/SendS.wav

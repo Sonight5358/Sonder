@@ -14,13 +14,14 @@ Item{
     property Gradient defaultGrad
     property int windowsRadius
     property int marginChatsField
+    property real sendAreaHeight: 0
 
     ListModel{
         id: messageModel
     }
 
     function addMessage(text, mine){
-        messageModel.append({messageText: text, isMine: mine})
+        messageModel.insert(0, {messageText: text, isMine: mine})
     }
 
     Rectangle{
@@ -55,9 +56,49 @@ Item{
             anchors.fill: parent
             anchors.margins: marginChatsField
 
+            verticalLayoutDirection: ListView.BottomToTop
             clip: true
-            spacing: 16
+            spacing: 12
+
             model: messageModel
+
+            header: Item{
+                width: messagesView.width
+                height: root.sendAreaHeight + 12
+            }
+
+            footer: Item{
+                width: messagesView.width
+                height: marginChatsField * 2
+            }
+
+            add: Transition{
+                ParallelAnimation{
+                    NumberAnimation{
+                        property: "opacity"
+                        from: 0
+                        to: 1
+                        duration: 250
+                        easing.type: Easing.OutCubic
+                    }
+
+                    NumberAnimation{
+                        property: "scale"
+                        from: 0.75
+                        to: 1
+                        duration: 250
+                        easing.type: Easing.OutCubic
+                    }
+                }
+            }
+
+            addDisplaced: Transition{
+                NumberAnimation{
+                    properties: "y"
+                    duration: 250
+                    easing.type: Easing.OutCubic
+                }
+            }
 
             delegate: Item{
                 id: delegateRoot
@@ -75,8 +116,8 @@ Item{
                     anchors.fill: delegateBottom
 
                     radius: delegateBottom.radius
-                    blur: 30
-                    spread: 2
+                    blur: 20
+                    spread: 1
                     color: Qt.rgba(0, 0, 0, opacityPanels - 0.15)
                 }
 
@@ -86,7 +127,7 @@ Item{
                     width: message.width + 24
                     height: message.implicitHeight + 16
 
-                    x: delegateRoot.isMine ? delegateRoot.width - width - 15 : 15
+                    x: delegateRoot.isMine ? delegateRoot.width - width - 16 : 16
 
                     color: delegateRoot.isMine? Qt.alpha("#2E2E2E", opacityPanels) : Qt.alpha(panelsColor, opacityPanels)
                     radius: windowsRadius
@@ -114,7 +155,7 @@ Item{
                 id: sbar
 
                 contentItem: Rectangle{
-                    implicitWidth: 5
+                    implicitWidth: 4
                     radius: implicitWidth / 2
                     color: textColor
                     opacity: sbar.active ? 0.7 : 0

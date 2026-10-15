@@ -16,9 +16,23 @@ Item{
     property double opacityPanels
     property font appTextFont
     property real borderOpacity
+    readonly property bool highlighted: hoverHandler.hovered || messageField.activeFocus
 
     signal sendRequested(string message)
     signal toButton()
+
+    onHighlightedChanged: {
+        onHoveredChanged: {
+            borderAnimation.stop()
+            borderAnimation.to = root.highlighted ? 1 : 0
+            borderAnimation.duration = 150
+            borderAnimation.start()
+        }
+    }
+
+    HoverHandler{
+        id: hoverHandler
+    }
 
     function send(){
         if (isEmpty){
@@ -151,17 +165,6 @@ Item{
                         root.send()
                     }
                 }
-            }
-        }
-
-        HoverHandler{
-            id: hoverHandler
-
-            onHoveredChanged: {
-                borderAnimation.stop()
-                borderAnimation.to = hovered ? 1 : 0
-                borderAnimation.duration = 150
-                borderAnimation.start()
             }
         }
     }

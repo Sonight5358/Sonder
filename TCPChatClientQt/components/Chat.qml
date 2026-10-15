@@ -53,6 +53,11 @@ Item{
         ListView{
             id: entireChat
 
+            TapHandler{
+                onTapped: {
+                    appWindow.contentItem.forceActiveFocus()
+                }
+            }
             anchors.fill: parent
             anchors.margins: marginChatsField
 

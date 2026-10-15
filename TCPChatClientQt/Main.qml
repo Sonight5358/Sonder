@@ -54,6 +54,12 @@ ApplicationWindow{
         }
     }
 
+    TapHandler{
+        onTapped: {
+            appWindow.contentItem.forceActiveFocus()
+        }
+    }
+
 
 
 

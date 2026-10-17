@@ -29,10 +29,11 @@ ApplicationWindow{
     property int marginChatsField: 6
     property int marginTopBottom: 5
     property double opacityPanels: 0.6
+    property double opacityMenu: 0.9
     property int windowsRadius: 8
     property font appFont: Qt.font({family: manrope.name, weight: 600, pixelSize: 22})
     property font appTextFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 18})
-    property font appSmallFont: Qt.font({family: manrope.name, weight: 600, pixelSize: 14})
+    property font appSmallFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 14})
     property Gradient defaultGrad: Gradient{
         GradientStop{
             position: 0.0
@@ -135,7 +136,10 @@ ApplicationWindow{
         borderColor: appWindow.borderColor
         opacityPanels: appWindow.opacityPanels
         appTextFont: appWindow.appTextFont
+        appSmallFont: appWindow.appSmallFont
         rightContentMargin: sendButton.width + 15
+        marginChatsField: appWindow.marginChatsField
+        opacityMenu: appWindow.opacityMenu
 
         onToButton: function(){
             sendButton.startSend()

@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls.Basic
 import QtQuick.Effects
+import QtQuick.Layouts
 
 Item{
     id: root
@@ -13,21 +14,23 @@ Item{
     property color textColor
     property color borderColor
     property int rightContentMargin
+    property int marginChatsField
     property double opacityPanels
     property font appTextFont
-    property real borderOpacity
-    readonly property bool highlighted: hoverHandler.hovered || messageField.activeFocus
-
+    property real borderOpacity: 0.3
+    property double opacityMenu
+    property font appSmallFont
+    readonly property bool highlighted: hoverHandler.hovered
+                                        || messageField.activeFocus
+                                        || contextMenu.visible
     signal sendRequested(string message)
     signal toButton()
 
     onHighlightedChanged: {
-        onHoveredChanged: {
-            borderAnimation.stop()
-            borderAnimation.to = root.highlighted ? 1 : 0
-            borderAnimation.duration = 150
-            borderAnimation.start()
-        }
+        borderAnimation.stop()
+        borderAnimation.to = root.highlighted ? 1 : 0.3
+        borderAnimation.duration = 150
+        borderAnimation.start()
     }
 
     HoverHandler{
@@ -70,7 +73,7 @@ Item{
         radius: 30
 
         border.width: 1
-        border.color: Qt.alpha(borderColor, 1 * borderOpacity)
+        border.color: Qt.alpha(borderColor, borderOpacity)
 
         Behavior on opacity{
             NumberAnimation{
@@ -151,6 +154,118 @@ Item{
                 placeholderTextColor: Qt.alpha(textColor, 0.6)
 
                 wrapMode: TextEdit.Wrap
+
+                ContextMenu.menu: Menu{
+                    id: contextMenu
+
+                    implicitWidth: 180
+                    topPadding: marginChatsField
+                    bottomPadding: marginChatsField
+
+                    background: Item{
+                        id: itemRoot
+
+                        RectangularShadow{
+                            id: menuShadow
+
+                            anchors.fill: backRect
+
+                            radius: backRect.radius
+                            blur: 30
+                            spread: 5
+                            color: Qt.rgba(0, 0, 0, opacityPanels - 0.1)
+                        }
+
+                        Rectangle{
+                            id: backRect
+
+                            anchors.fill: parent
+
+                            color: Qt.alpha(mainColor, opacityMenu)
+                            radius: 8
+
+                            border.width: 1
+                            border.color: Qt.alpha(borderColor, 0.3)
+                        }
+                    }
+
+                    delegate: MenuItem{
+                        id: menuItem
+
+                        leftInset: 6
+                        rightInset: 6
+                        leftPadding: 12
+                        rightPadding: 12
+
+                        contentItem: RowLayout{
+                            Text{
+                                text: menuItem.text
+                                font: appTextFont
+                                color: textColor
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignBaseline
+                            }
+                            Text{
+                                text: menuItem.action.shortcutText
+                                font: appSmallFont
+                                color: Qt.alpha(textColor, 0.7)
+                                Layout.alignment: Qt.AlignBaseline
+                            }
+                        }
+
+                        background: Rectangle{
+                            color: Qt.alpha(textColor, 0.08)
+                            opacity: menuItem.highlighted ? 1 : 0
+                            radius: 7
+
+                            Behavior on opacity{
+                                NumberAnimation{
+                                    duration: 75
+                                    easing.type: Easing.InOutCubic
+                                }
+                            }
+                        }
+                    }
+                    Action{
+                        text: "Copy"
+                        property string shortcutText: "Ctrl+C"
+                        onTriggered: messageField.copy()
+                    }
+                    Action{
+                        text: "Cut"
+                        property string shortcutText: "Ctrl+X"
+                        onTriggered: messageField.cut()
+                    }
+                    Action{
+                        text: "Paste"
+                        property string shortcutText: "Ctrl+V"
+                        onTriggered: messageField.paste()
+                    }
+                    Action{
+                        text: "Select All"
+                        property string shortcutText: "Ctrl+A"
+                        onTriggered: messageField.selectAll()
+                    }
+
+                    enter: Transition{
+                        NumberAnimation{
+                            property: "opacity"
+                            from: 0
+                            to: 1
+                            duration: 150
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+                    exit: Transition{
+                        NumberAnimation{
+                            property: "opacity"
+                            from: 1
+                            to: 0
+                            duration: 100
+                            easing.type: Easing.InCubic
+                        }
+                    }
+                }
 
                 Keys.onPressed: function(event){
                     if (event.key !== Qt.Key_Return && event.key !== Qt.Key_Enter){

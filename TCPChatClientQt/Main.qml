@@ -25,6 +25,8 @@ ApplicationWindow{
     property color mainColor: "#171717"
     property color textColor:  "#E5E4E2"
     property color borderColor: "#686868"
+    property color myBorderColor: "#484848"
+    property color otherBorderColor: "#2E2E2E"
     property int marginEl: 10
     property int marginChatsField: 6
     property int marginTopBottom: 5
@@ -82,7 +84,12 @@ ApplicationWindow{
         mainColor: appWindow.mainColor
         textColor: appWindow.textColor
         borderColor: appWindow.borderColor
+        myBorderColor: appWindow.myBorderColor
+        otherBorderColor: appWindow.otherBorderColor
         opacityPanels: appWindow.opacityPanels
+        borderIdleOpacity: appWindow.borderIdleOpacity
+        opacityMenu: appWindow.opacityMenu
+        appSmallFont: appWindow.appSmallFont
         appTextFont: appWindow.appTextFont
         defaultGrad: appWindow.defaultGrad
         windowsRadius: appWindow.windowsRadius

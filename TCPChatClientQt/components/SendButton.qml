@@ -164,7 +164,7 @@ Item{
     // Send sound
     SoundEffect{
         id: soundPlayer
-        volume: 0.3
+        volume: 0.1
         source: "qrc:/qt/qml/TCPChatClientQt/assets/SendS.wav"
     }
 

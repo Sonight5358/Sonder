@@ -77,7 +77,7 @@ Menu{
         background: Rectangle{
             color: Qt.alpha(textColor, 0.08)
             opacity: menuItem.highlighted ? 1 : 0
-            radius: 7
+            radius: 6
 
             Behavior on opacity{
                 NumberAnimation{

@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Effects
 import QtQuick.Controls.Basic
+import TCPChatClientQt
 
 Item{
     id: root
@@ -9,12 +10,18 @@ Item{
     property color mainColor
     property color textColor
     property color borderColor
+    property color myBorderColor
+    property color otherBorderColor
     property double opacityPanels
+    property double borderIdleOpacity
     property font appTextFont
     property Gradient defaultGrad
     property int windowsRadius
     property int marginChatsField
+    property double opacityMenu
+    property font appSmallFont
     property real sendAreaHeight: 0
+    property int menuIndex: -1
 
     ListModel{
         id: messageModel
@@ -22,6 +29,38 @@ Item{
 
     function addMessage(text, mine){
         messageModel.insert(0, {messageText: text, isMine: mine})
+    }
+    function deleteMessage(i){
+        if(i >= 0 && i < messageModel.count){
+            messageModel.remove(i)
+        }
+    }
+
+    ChatMenu{
+        id: chatMenu
+
+        mainColor: root.mainColor
+        textColor: root.textColor
+        borderColor: root.borderColor
+        marginChatsField: root.marginChatsField
+        opacityPanels: root.opacityPanels
+        borderIdleOpacity: root.borderIdleOpacity
+        opacityMenu: root.opacityMenu
+        appTextFont: root.appTextFont
+        appSmallFont: root.appSmallFont
+
+        implicitWidth: 140
+
+        onClosed: root.menuIndex = -1
+
+        Action{
+            text: "Copy"
+            onTriggered: Clipboard.setText(messageModel.get(root.menuIndex).messageText)
+        }
+        Action{
+            text: "Delete"
+            onTriggered: root.deleteMessage(root.menuIndex)
+        }
     }
 
     Rectangle{
@@ -105,13 +144,44 @@ Item{
                 }
             }
 
+            remove: Transition{
+                ParallelAnimation{
+                    NumberAnimation{
+                        property: "opacity"
+                        from: 1
+                        to: 0
+                        duration: 200
+                        easing.type: Easing.InCubic
+                    }
+
+                    NumberAnimation{
+                        property: "scale"
+                        from: 1
+                        to: 0.75
+                        duration: 200
+                        easing.type: Easing.InCubic
+                    }
+                }
+            }
+
+            removeDisplaced: Transition{
+                NumberAnimation{
+                    properties: "y"
+                    duration: 200
+                    easing.type: Easing.InCubic
+                }
+            }
+
             delegate: Item{
                 id: delegateRoot
 
                 required property string messageText
                 required property bool isMine
+                required property int index
 
-                // временно
+                readonly property bool highlighted: hoverHandler.hovered
+                                                    || (chatMenu.visible && root.menuIndex === index)
+
                 height: delegateBottom.height
                 width: ListView.view.width
 
@@ -129,6 +199,17 @@ Item{
                 Rectangle{
                     id: delegateBottom
 
+                    HoverHandler{
+                        id: hoverHandler
+                    }
+                    TapHandler{
+                        acceptedButtons: Qt.RightButton
+                        onTapped: {
+                            root.menuIndex = delegateRoot.index
+                            chatMenu.popup()
+                        }
+                    }
+
                     width: message.width + 24
                     height: message.implicitHeight + 16
 
@@ -138,7 +219,15 @@ Item{
                     radius: windowsRadius
 
                     border.width: 1
-                    border.color: delegateRoot.isMine ? "#484848" : "#2E2E2E"
+                    border.color: delegateRoot.isMine ? delegateRoot.highlighted ? Qt.lighter(myBorderColor, 1.5) : myBorderColor
+                                                      : delegateRoot.highlighted ? Qt.lighter(otherBorderColor, 1.5) : otherBorderColor
+
+                    Behavior on border.color{
+                        ColorAnimation{
+                            duration: 150
+                            easing.type: Easing.OutCubic
+                        }
+                    }
 
                     Text{
                     id: message

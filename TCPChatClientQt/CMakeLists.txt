@@ -29,12 +29,13 @@ qt_add_qml_module(appTCPChatClientQt
         components/People.qml
         components/ChatMenu.qml
 
-    SOURCES Chatclient.h Chatclient.cpp
+    SOURCES chatclient.h chatclient.cpp clipboard.h clipboard.cpp
 
     RESOURCES
         assets/SomethingInteresting.json
         assets/SendS.wav
         fonts/Manrope-VariableFont_wght.ttf
+
 )
 
 qt_add_shaders(appTCPChatClientQt "app_shaders"

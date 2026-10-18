@@ -27,6 +27,7 @@ qt_add_qml_module(appTCPChatClientQt
         components/ChatInformation.qml
         components/Chat.qml
         components/People.qml
+        components/ChatMenu.qml
 
     SOURCES Chatclient.h Chatclient.cpp
 

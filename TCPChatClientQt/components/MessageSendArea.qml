@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls.Basic
 import QtQuick.Effects
-import QtQuick.Layouts
 
 Item{
     id: root
@@ -16,7 +15,8 @@ Item{
     property int marginChatsField
     property double opacityPanels
     property font appTextFont
-    property real borderOpacity: 0.3
+    property real borderOpacity: borderIdleOpacity
+    property double borderIdleOpacity
     property double opacityMenu
     property font appSmallFont
     readonly property bool highlighted: hoverHandler.hovered
@@ -27,7 +27,7 @@ Item{
 
     onHighlightedChanged: {
         borderAnimation.stop()
-        borderAnimation.to = root.highlighted ? 1 : 0.3
+        borderAnimation.to = root.highlighted ? 1 : borderIdleOpacity
         borderAnimation.duration = 150
         borderAnimation.start()
     }
@@ -154,79 +154,21 @@ Item{
 
                 wrapMode: TextEdit.Wrap
 
-                ContextMenu.menu: Menu{
+                ContextMenu.menu: ChatMenu{
                     id: contextMenu
 
+                    mainColor: root.mainColor
+                    textColor: root.textColor
+                    borderColor: root.borderColor
+                    opacityPanels: root.opacityPanels
+                    opacityMenu: root.opacityMenu
+                    appTextFont: root.appTextFont
+                    appSmallFont: root.appSmallFont
+                    borderIdleOpacity: root.borderIdleOpacity
+                    marginChatsField: root.marginChatsField
+
                     implicitWidth: 180
-                    topPadding: marginChatsField
-                    bottomPadding: marginChatsField
 
-                    background: Item{
-                        id: itemRoot
-
-                        RectangularShadow{
-                            id: menuShadow
-
-                            anchors.fill: backRect
-
-                            radius: backRect.radius
-                            blur: 30
-                            spread: 5
-                            color: Qt.rgba(0, 0, 0, opacityPanels - 0.1)
-                        }
-
-                        Rectangle{
-                            id: backRect
-
-                            anchors.fill: parent
-
-                            color: Qt.alpha(mainColor, opacityMenu)
-                            radius: 8
-
-                            border.width: 1
-                            border.color: Qt.alpha(borderColor, 0.3)
-                        }
-                    }
-
-                    delegate: MenuItem{
-                        id: menuItem
-
-                        leftInset: 6
-                        rightInset: 6
-                        leftPadding: 12
-                        rightPadding: 12
-
-                        contentItem: RowLayout{
-                            opacity: enabled ? 1 : 0.35
-
-                            Text{
-                                text: menuItem.text
-                                font: appTextFont
-                                color: textColor
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignBaseline
-                            }
-                            Text{
-                                text: menuItem.action.shortcutText
-                                font: appSmallFont
-                                color: Qt.alpha(textColor, 0.7)
-                                Layout.alignment: Qt.AlignBaseline
-                            }
-                        }
-
-                        background: Rectangle{
-                            color: Qt.alpha(textColor, 0.08)
-                            opacity: menuItem.highlighted ? 1 : 0
-                            radius: 7
-
-                            Behavior on opacity{
-                                NumberAnimation{
-                                    duration: 75
-                                    easing.type: Easing.InOutCubic
-                                }
-                            }
-                        }
-                    }
                     Action{
                         text: "Cut"
                         property string shortcutText: "Ctrl+X"
@@ -250,25 +192,6 @@ Item{
                         property string shortcutText: "Ctrl+A"
                         enabled: messageField.length > 0
                         onTriggered: messageField.selectAll()
-                    }
-
-                    enter: Transition{
-                        NumberAnimation{
-                            property: "opacity"
-                            from: 0
-                            to: 1
-                            duration: 150
-                            easing.type: Easing.OutCubic
-                        }
-                    }
-                    exit: Transition{
-                        NumberAnimation{
-                            property: "opacity"
-                            from: 1
-                            to: 0
-                            duration: 100
-                            easing.type: Easing.InCubic
-                        }
                     }
                 }
 

@@ -30,6 +30,7 @@ ApplicationWindow{
     property int marginTopBottom: 5
     property double opacityPanels: 0.6
     property double opacityMenu: 0.9
+    property double borderIdleOpacity: 0.4
     property int windowsRadius: 8
     property font appFont: Qt.font({family: manrope.name, weight: 600, pixelSize: 22})
     property font appTextFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 18})
@@ -135,6 +136,7 @@ ApplicationWindow{
         textColor: appWindow.textColor
         borderColor: appWindow.borderColor
         opacityPanels: appWindow.opacityPanels
+        borderIdleOpacity: appWindow.borderIdleOpacity
         appTextFont: appWindow.appTextFont
         appSmallFont: appWindow.appSmallFont
         rightContentMargin: sendButton.width + 15

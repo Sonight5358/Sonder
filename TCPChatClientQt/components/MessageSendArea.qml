@@ -8,7 +8,6 @@ Item{
     height: Math.max(60, Math.min(200, messageField.implicitHeight + 25))
 
     property bool isEmpty: messageField.text.trim().length === 0
-
     property color panelsColor
     property color mainColor
     property color textColor
@@ -198,6 +197,8 @@ Item{
                         rightPadding: 12
 
                         contentItem: RowLayout{
+                            opacity: enabled ? 1 : 0.35
+
                             Text{
                                 text: menuItem.text
                                 font: appTextFont
@@ -227,23 +228,27 @@ Item{
                         }
                     }
                     Action{
-                        text: "Copy"
-                        property string shortcutText: "Ctrl+C"
-                        onTriggered: messageField.copy()
-                    }
-                    Action{
                         text: "Cut"
                         property string shortcutText: "Ctrl+X"
+                        enabled: messageField.selectedText.length > 0
                         onTriggered: messageField.cut()
+                    }
+                    Action{
+                        text: "Copy"
+                        property string shortcutText: "Ctrl+C"
+                        enabled: messageField.selectedText.length > 0
+                        onTriggered: messageField.copy()
                     }
                     Action{
                         text: "Paste"
                         property string shortcutText: "Ctrl+V"
+                        enabled: messageField.canPaste
                         onTriggered: messageField.paste()
                     }
                     Action{
                         text: "Select All"
                         property string shortcutText: "Ctrl+A"
+                        enabled: messageField.length > 0
                         onTriggered: messageField.selectAll()
                     }
 

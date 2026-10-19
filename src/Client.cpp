@@ -21,9 +21,9 @@ void ReceiveThread(Socket& ConnectionSocket)
 	// Message buffer
 	char buffer[DEFAULT_BUFLEN];
 
-	while (true)
-	{	
-		try
+	try
+	{
+		while (true)
 		{
 			std::optional<int> Resultop = Retry<int>(
 				[&]()
@@ -56,21 +56,27 @@ void ReceiveThread(Socket& ConnectionSocket)
 			std::cout.write(buffer, Result);
 			std::cout << '\n';
 		}
-
-		catch (const SocketError& e)
+	}
+	
+	catch (const SocketError& e)
+	{
+		if (e.code() == WSAESHUTDOWN)
 		{
-			if (e.code() == WSAESHUTDOWN)
-			{
-				return;
-			}
-
+			std::cout << "Disconnected" << '\n';
+		}
+		else if (e.code() == WSAECONNRESET)
+		{
+			std::cout << "Peer disconnected" << '\n';
+		}
+		else 
+		{
 			std::cout << e.what() << '\n';
 		}
+	}
 
-		catch (const std::exception& e)
-		{	
-			std::cout << "Error: " << e.what() << '\n';
-		}
+	catch (const std::exception& e)
+	{
+		std::cout << "Error: " << e.what() << '\n';
 	}
 }
 

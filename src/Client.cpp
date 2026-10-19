@@ -135,16 +135,32 @@ int main()
 			break;
 		}
 
-		// Send message from client on enter
-		std::optional<int> SentBytes = Retry<int>(
-			[&]()
+		try
+		{
+			// Send message from server on enter
+			std::optional<int> SentBytes = Retry<int>(
+				[&]()
+				{
+					return ConnectionSocket.Send(buffer, 0);
+				},
+				3,
+				std::chrono::seconds(1),
+				true
+			);
+		}
+
+		catch (const SocketError& e)
+		{
+			if (e.code() == WSAESHUTDOWN)
 			{
-				return ConnectionSocket.Send(buffer, 0);
-			},
-			3,
-			std::chrono::seconds(1),
-			true
-		);
+				std::cout << "Connection closed" << '\n';
+				// To be able to go the join after /exit
+				break;
+			}
+
+			std::cout << e.what() << '\n';
+			break;
+		}
 	}
 
 	// Wait for the new thread to finish (it doesnt work for now)

@@ -8,9 +8,9 @@
 #include <windows.h>
 
 #include <string>
-#include <stdexcept>
 #include <cstring>
 #include <ws2tcpip.h>
+#include "SocketError.h"
 
 class Socket
 {
@@ -71,7 +71,7 @@ public:
 		// If receive failed
 		if (Result == SOCKET_ERROR)
 		{
-			throw std::runtime_error(std::to_string(WSAGetLastError()));
+			throw SocketError(WSAGetLastError());
 		}
 
 		return Result;

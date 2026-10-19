@@ -57,13 +57,18 @@ void ReceiveThread(Socket& ConnectionSocket)
 			std::cout << '\n';
 		}
 
-		catch (const std::exception& e)
-		{	
-			if (std::stoi(e.what()) == WSAESHUTDOWN)
+		catch (const SocketError& e)
+		{
+			if (e.code() == WSAESHUTDOWN)
 			{
 				return;
 			}
 
+			std::cout << e.what() << '\n';
+		}
+
+		catch (const std::exception& e)
+		{	
 			std::cout << "Error: " << e.what() << '\n';
 		}
 	}

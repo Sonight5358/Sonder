@@ -7,7 +7,7 @@ Socket::Socket(int af, int type, int protocol)
 	// If socket was not created
 	if (SocketDesc == INVALID_SOCKET)
 	{
-		throw std::runtime_error(std::to_string(WSAGetLastError()));
+		throw SocketError(WSAGetLastError());
 	}
 }
 
@@ -50,7 +50,7 @@ void Socket::Bind(const sockaddr_in& name) // Struct with server info
 	// If binding failed
 	if (bind(SocketDesc, (sockaddr*)&name, sizeof(name)) == SOCKET_ERROR)
 	{
-		throw std::runtime_error(std::to_string(WSAGetLastError()));
+		throw SocketError(WSAGetLastError());
 	}
 }
 
@@ -60,7 +60,7 @@ void Socket::Bind(const sockaddr_in6& name) // Struct with server info
 	// If binding failed
 	if (bind(SocketDesc, (sockaddr*)&name, sizeof(name)) == SOCKET_ERROR)
 	{
-		throw std::runtime_error(std::to_string(WSAGetLastError()));
+		throw SocketError(WSAGetLastError());
 	}
 }
 
@@ -70,7 +70,7 @@ void Socket::Listen(int backlog)
 	// If listening failed
 	if (listen(SocketDesc, backlog) == SOCKET_ERROR) // Socket descriptor, max length of pending connection queue)
 	{
-		throw std::runtime_error(std::to_string(WSAGetLastError()));
+		throw SocketError(WSAGetLastError());
 	}
 }
 
@@ -87,7 +87,7 @@ Socket Socket::Accept(sockaddr_in& name)
 	// If not accepted
 	if (newsock == INVALID_SOCKET)
 	{
-		throw std::runtime_error(std::to_string(WSAGetLastError()));
+		throw SocketError(WSAGetLastError());
 	}
 
 	/*Socket sock(newsock);
@@ -110,7 +110,7 @@ Socket Socket::Accept(sockaddr_in6& name)
 	// If not accepted
 	if (newsock == INVALID_SOCKET)
 	{
-		throw std::runtime_error(std::to_string(WSAGetLastError()));
+		throw SocketError(WSAGetLastError());
 	}
 
 	/*Socket sock(newsock);
@@ -125,7 +125,7 @@ void Socket::Connect(const sockaddr_in& name)
 	// If connection failed
 	if (connect(SocketDesc, (sockaddr*)&name, sizeof(name)) == SOCKET_ERROR)
 	{
-		throw std::runtime_error(std::to_string(WSAGetLastError()));
+		throw SocketError(WSAGetLastError());
 	}
 }
 
@@ -135,7 +135,7 @@ void Socket::Connect(const sockaddr_in6& name)
 	// If connection failed
 	if (connect(SocketDesc, (sockaddr*)&name, sizeof(name)) == SOCKET_ERROR)
 	{
-		throw std::runtime_error(std::to_string(WSAGetLastError()));
+		throw SocketError(WSAGetLastError());
 	}
 }
 
@@ -152,7 +152,7 @@ int Socket::Send(const char* buf, int flag)
 		// If cant send
 		if (sentBytes == SOCKET_ERROR)
 		{
-			throw std::runtime_error(std::to_string(WSAGetLastError()));
+			throw SocketError(WSAGetLastError());
 		}
 
 		sent += sentBytes;
@@ -171,7 +171,7 @@ int Socket::Shutdown(int how)
 	// If shutdown failed
 	if (Result == SOCKET_ERROR)
 	{
-		throw std::runtime_error(std::to_string(WSAGetLastError()));
+		throw SocketError(WSAGetLastError());
 	}
 
 	return Result;

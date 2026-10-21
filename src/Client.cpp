@@ -12,11 +12,12 @@
 #include <thread>
 #include <cstring>
 #include <string>
+#include <atomic>
 #include "Socket.h"
 #include "Retry.h"
 
 // Receive message from server (blocking fuction) in a separate thread
-void ReceiveThread(Socket& ConnectionSocket)
+void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 {
 	// Message buffer
 	char buffer[DEFAULT_BUFLEN];
@@ -28,16 +29,8 @@ void ReceiveThread(Socket& ConnectionSocket)
 			int Result = ConnectionSocket.Recv(buffer, 0);
 
 			if (Result == 0)
-			{
+			{	
 				std::cout << "Connection closed." << '\n';
-				return;
-			}
-
-			std::string Message(buffer, Result);
-
-			if (Message == "/exit")
-			{
-				ConnectionSocket.Shutdown(SD_BOTH);
 				break;
 			}
 
@@ -51,11 +44,11 @@ void ReceiveThread(Socket& ConnectionSocket)
 	catch (const SocketError& e)
 	{
 		if (e.code() == WSAESHUTDOWN)
-		{
+		{	
 			std::cout << "Disconnected" << '\n';
 		}
 		else if (e.code() == WSAECONNRESET)
-		{
+		{	
 			std::cout << "Peer disconnected" << '\n';
 		}
 		else 
@@ -68,6 +61,8 @@ void ReceiveThread(Socket& ConnectionSocket)
 	{
 		std::cout << "Error: " << e.what() << '\n';
 	}
+
+	connected = false;
 }
 
 int main()
@@ -117,13 +112,22 @@ int main()
 	// Message buffer
 	char buffer[DEFAULT_BUFLEN];
 
+	// Variable for threads without data race
+	std::atomic<bool> connected = true;
+
 	// Thread for receiving messages from server
-	std::thread Thread1(ReceiveThread, std::ref(ConnectionSocket));
+	std::thread Thread1(ReceiveThread, std::ref(ConnectionSocket), std::ref(connected));
 
 	while (true)
-	{
+	{	
 		// Send
 		std::cin.getline(buffer, DEFAULT_BUFLEN);
+
+		if (connected == false)
+		{
+			std::cout << "Connection closed" << '\n';
+			break;
+		}
 
 		if (strcmp(buffer, "/exit") == 0)
 		{

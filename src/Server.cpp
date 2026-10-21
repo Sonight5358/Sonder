@@ -22,17 +22,7 @@ void ReceiveThread(Socket& ConnectionSocket)
 	{
 		while (true)
 		{
-			std::optional<int> Resultop = Retry<int>(
-				[&]()
-				{
-					return ConnectionSocket.Recv(buffer, 0);
-				},
-				3,
-				std::chrono::seconds(1),
-				true
-			);
-
-			int Result = Resultop.value();
+			int Result = ConnectionSocket.Recv(buffer, 0);
 
 			if (Result == 0)
 			{
@@ -158,15 +148,7 @@ int main()
 		try 
 		{
 			// Send message from server on enter
-			std::optional<int> SentBytes = Retry<int>(
-				[&]()
-				{
-					return ConnectionSocket.Send(buffer, 0);
-				},
-				3,
-				std::chrono::seconds(1),
-				true
-			);
+			ConnectionSocket.Send(buffer, 0);
 		}
 		
 		catch (const SocketError& e)

@@ -118,6 +118,11 @@ int main()
 	// Thread for receiving messages from server
 	std::thread Thread1(ReceiveThread, std::ref(ConnectionSocket), std::ref(connected));
 
+	// TEMP: framing experiment
+	ConnectionSocket.Send("one", 0);
+	ConnectionSocket.Send("two", 0);
+	ConnectionSocket.Send("three", 0);
+
 	while (true)
 	{	
 		// Send

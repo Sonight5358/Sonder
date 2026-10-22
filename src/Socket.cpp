@@ -176,3 +176,48 @@ int Socket::Shutdown(int how)
 
 	return Result;
 }
+
+// Receive entire package
+bool Socket::RecvAll(char* buf, int len)
+{
+	int received = 0;
+
+	while (received < len)
+	{
+		int Result = recv(SocketDesc, buf + received, len - received, 0);
+
+		// If receive failed
+		if (Result == SOCKET_ERROR)
+		{
+			throw SocketError(WSAGetLastError());
+		}
+
+		if (Result == 0)
+		{
+			return false;
+		}
+		
+		received += Result;
+	}
+
+	return true;
+}
+
+// Send entire package
+void Socket::SendAll(const char* buf, int len)
+{
+	int sent = 0;
+
+	while (sent < len)
+	{
+		int sentBytes = send(SocketDesc, buf + sent, len - sent, 0);
+
+		// If cant send
+		if (sentBytes == SOCKET_ERROR)
+		{
+			throw SocketError(WSAGetLastError());
+		}
+
+		sent += sentBytes;
+	}
+}

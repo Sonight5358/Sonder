@@ -78,4 +78,10 @@ public:
 	}
 
 	int Shutdown(int how);
+
+	// Receive entire package
+	bool RecvAll(char* buf, int len);
+
+	// Send entire package
+	void SendAll(const char* buf, int len);
 };

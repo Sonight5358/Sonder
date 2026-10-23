@@ -48,7 +48,7 @@ Socket::~Socket()
 void Socket::Bind(const sockaddr_in& name) // Struct with server info
 {
 	// If binding failed
-	if (bind(SocketDesc, (sockaddr*)&name, sizeof(name)) == SOCKET_ERROR)
+	if (bind(SocketDesc, reinterpret_cast<const sockaddr*>(&name), sizeof(name)) == SOCKET_ERROR)
 	{
 		throw SocketError(WSAGetLastError());
 	}
@@ -58,7 +58,7 @@ void Socket::Bind(const sockaddr_in& name) // Struct with server info
 void Socket::Bind(const sockaddr_in6& name) // Struct with server info
 {
 	// If binding failed
-	if (bind(SocketDesc, (sockaddr*)&name, sizeof(name)) == SOCKET_ERROR)
+	if (bind(SocketDesc, reinterpret_cast<const sockaddr*>(&name), sizeof(name)) == SOCKET_ERROR)
 	{
 		throw SocketError(WSAGetLastError());
 	}
@@ -82,7 +82,7 @@ Socket Socket::Accept(sockaddr_in& name)
 	// New socket class
 	SOCKET newsock = INVALID_SOCKET;
 
-	newsock = accept(SocketDesc, (sockaddr*)&name, &addrlen);
+	newsock = accept(SocketDesc, reinterpret_cast<sockaddr*>(&name), &addrlen);
 
 	// If not accepted
 	if (newsock == INVALID_SOCKET)
@@ -105,7 +105,7 @@ Socket Socket::Accept(sockaddr_in6& name)
 	// New socket class
 	SOCKET newsock = INVALID_SOCKET;
 
-	newsock = accept(SocketDesc, (sockaddr*)&name, &addrlen);
+	newsock = accept(SocketDesc, reinterpret_cast<sockaddr*>(&name), &addrlen);
 
 	// If not accepted
 	if (newsock == INVALID_SOCKET)
@@ -123,7 +123,7 @@ Socket Socket::Accept(sockaddr_in6& name)
 void Socket::Connect(const sockaddr_in& name)
 {
 	// If connection failed
-	if (connect(SocketDesc, (sockaddr*)&name, sizeof(name)) == SOCKET_ERROR)
+	if (connect(SocketDesc, reinterpret_cast<const sockaddr*>(&name), sizeof(name)) == SOCKET_ERROR)
 	{
 		throw SocketError(WSAGetLastError());
 	}
@@ -133,7 +133,7 @@ void Socket::Connect(const sockaddr_in& name)
 void Socket::Connect(const sockaddr_in6& name)
 {
 	// If connection failed
-	if (connect(SocketDesc, (sockaddr*)&name, sizeof(name)) == SOCKET_ERROR)
+	if (connect(SocketDesc, reinterpret_cast<const sockaddr*>(&name), sizeof(name)) == SOCKET_ERROR)
 	{
 		throw SocketError(WSAGetLastError());
 	}

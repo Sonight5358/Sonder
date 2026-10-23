@@ -2,7 +2,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#define DEFAULT_BUFLEN 1024
+constexpr unsigned int DEFAULT_BUFLEN = 1024;
 
 #include <winsock2.h>
 #include <ws2tcpip.h>

@@ -2,39 +2,35 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-constexpr unsigned int DEFAULT_BUFLEN = 1024;
-
 #include <winsock2.h>
 #include <windows.h>
 
 #include <iostream>
 #include <thread>
 #include <atomic>
+
 #include "Socket.h"
 #include "Retry.h"
+#include "Framing.h"
 
 // Receive message from client (blocking fuction) in a separate thread
 void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 {
-	// Message buffer
-	char buffer[DEFAULT_BUFLEN];
-
 	try
 	{
 		while (true)
-		{
-			int Result = ConnectionSocket.Recv(buffer, 0);
+		{	
+			std::optional<std::string> message = RecvPacket(ConnectionSocket);
 
-			if (Result == 0)
+			if (!message)
 			{
-				std::cout << "Connection closed." << '\n';
+				std::cout << "Connection closed" << '\n';
 				break;
 			}
-
-			// In console
-			std::cout << "Client: ";
-			std::cout.write(buffer, Result);
-			std::cout << '\n';
+			else
+			{
+				std::cout << "Client: " << *message << '\n';
+			}
 		}
 	}
 
@@ -123,8 +119,7 @@ int main()
 
 	Socket ConnectionSocket = std::move(ConnectionSocketOp.value()); // Using move constructor
 
-	// Message buffer
-	char buffer[DEFAULT_BUFLEN];
+	std::string line;
 
 	// Variable for threads without data race
 	std::atomic<bool> connected = true;
@@ -135,7 +130,7 @@ int main()
 	while (true)
 	{
 		// Send
-		std::cin.getline(buffer, DEFAULT_BUFLEN);
+		std::getline(std::cin, line);
 
 		if (connected == false)
 		{
@@ -143,7 +138,7 @@ int main()
 			break;
 		}
 
-		if (strcmp(buffer, "/exit") == 0)
+		if (line == "/exit")
 		{	
 			ConnectionSocket.Shutdown(SD_BOTH);
 			break;
@@ -152,7 +147,7 @@ int main()
 		try 
 		{
 			// Send message from server on enter
-			ConnectionSocket.Send(buffer, 0);
+			SendPacket(ConnectionSocket, line);
 		}
 		
 		catch (const SocketError& e)
@@ -166,6 +161,12 @@ int main()
 
 			std::cout << e.what() << '\n';
 			break;
+		}
+
+		catch (const std::length_error&)
+		{
+			std::cout << "Message is too long" << '\n';
+			continue;
 		}
 	}
 

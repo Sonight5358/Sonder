@@ -2,8 +2,6 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-constexpr unsigned int DEFAULT_BUFLEN = 1024;
-
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
@@ -13,45 +11,43 @@ constexpr unsigned int DEFAULT_BUFLEN = 1024;
 #include <cstring>
 #include <string>
 #include <atomic>
+
 #include "Socket.h"
 #include "Retry.h"
+#include "Framing.h"
 
 // Receive message from server (blocking fuction) in a separate thread
 void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 {
-	// Message buffer
-	char buffer[DEFAULT_BUFLEN];
-
 	try
 	{
 		while (true)
 		{
-			int Result = ConnectionSocket.Recv(buffer, 0);
+			std::optional<std::string> message = RecvPacket(ConnectionSocket);
 
-			if (Result == 0)
-			{	
-				std::cout << "Connection closed." << '\n';
+			if (!message)
+			{
+				std::cout << "Connection closed" << '\n';
 				break;
 			}
-
-			// In console
-			std::cout << "Server: ";
-			std::cout.write(buffer, Result);
-			std::cout << '\n';
+			else
+			{
+				std::cout << "Server: " << *message << '\n';
+			}
 		}
 	}
-	
+
 	catch (const SocketError& e)
 	{
 		if (e.code() == WSAESHUTDOWN)
-		{	
+		{
 			std::cout << "Disconnected" << '\n';
 		}
 		else if (e.code() == WSAECONNRESET)
-		{	
+		{
 			std::cout << "Peer disconnected" << '\n';
 		}
-		else 
+		else
 		{
 			std::cout << e.what() << '\n';
 		}
@@ -109,8 +105,7 @@ int main()
 		std::chrono::seconds(1)
 	);
 
-	// Message buffer
-	char buffer[DEFAULT_BUFLEN];
+	std::string line;
 
 	// Variable for threads without data race
 	std::atomic<bool> connected = true;
@@ -118,15 +113,10 @@ int main()
 	// Thread for receiving messages from server
 	std::thread Thread1(ReceiveThread, std::ref(ConnectionSocket), std::ref(connected));
 
-	// TEMP: framing experiment
-	ConnectionSocket.Send("one", 0);
-	ConnectionSocket.Send("two", 0);
-	ConnectionSocket.Send("three", 0);
-
 	while (true)
 	{	
 		// Send
-		std::cin.getline(buffer, DEFAULT_BUFLEN);
+		std::getline(std::cin, line);
 
 		if (connected == false)
 		{
@@ -134,7 +124,7 @@ int main()
 			break;
 		}
 
-		if (strcmp(buffer, "/exit") == 0)
+		if (line == "/exit")
 		{
 			ConnectionSocket.Shutdown(SD_BOTH);
 			break;
@@ -143,7 +133,7 @@ int main()
 		try
 		{
 			// Send message from client on enter
-			ConnectionSocket.Send(buffer, 0);
+			SendPacket(ConnectionSocket, line);
 		}
 
 		catch (const SocketError& e)
@@ -157,6 +147,12 @@ int main()
 
 			std::cout << e.what() << '\n';
 			break;
+		}
+
+		catch (const std::length_error&)
+		{
+			std::cout << "Message is too long" << '\n';
+			continue;
 		}
 	}
 

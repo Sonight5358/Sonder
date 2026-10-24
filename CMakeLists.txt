@@ -18,3 +18,11 @@ add_executable(TCPServer src/Server.cpp)
 add_executable(TCPClient src/Client.cpp)
 target_link_libraries(TCPServer PRIVATE SonderBack)
 target_link_libraries(TCPClient PRIVATE SonderBack)
+
+# Qt client cmake subdirectory
+option(SONDER_BUILD_GUI "Build the Qt client" ON)
+if (SONDER_BUILD_GUI)
+	add_subdirectory(TCPChatClientQt)
+endif()
+
+target_compile_definitions(SonderBack PUBLIC NOMINMAX WIN32_LEAN_AND_MEAN)

@@ -61,6 +61,7 @@ target_link_libraries(appTCPChatClientQt
         Qt::Lottie
         Qt6::Multimedia
         dwmapi
+        SonderBack
 )
 
 install(TARGETS appTCPChatClientQt

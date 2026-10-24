@@ -139,30 +139,6 @@ void Socket::Connect(const sockaddr_in6& name)
 	}
 }
 
-// Send message
-int Socket::Send(const char* buf, int flag)
-{	
-	int total = strlen(buf);
-	int sent = 0;
-
-	while (sent < total)
-	{	
-		int sentBytes = send(SocketDesc, buf + sent, total - sent, flag);
-
-		// If cant send
-		if (sentBytes == SOCKET_ERROR)
-		{
-			throw SocketError(WSAGetLastError());
-		}
-
-		sent += sentBytes;
-	}
-
-	return sent;
-}
-
-// Receive in a template in .h
-
 // Shutdown
 int Socket::Shutdown(int how)
 {	

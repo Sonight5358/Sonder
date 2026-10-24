@@ -8,7 +8,6 @@
 #include <windows.h>
 
 #include <string>
-#include <cstring>
 #include <ws2tcpip.h>
 #include "SocketError.h"
 
@@ -58,24 +57,6 @@ public:
 
 	// Connect (IPv6)
 	void Connect(const sockaddr_in6& name);
-
-	// Send message
-	int Send(const char* buf, int flag);
-
-	// Receive
-	template <size_t T>
-	int Recv(char (&buf)[T], int flag)
-	{	
-		int Result = recv(SocketDesc, buf, T, flag);
-
-		// If receive failed
-		if (Result == SOCKET_ERROR)
-		{
-			throw SocketError(WSAGetLastError());
-		}
-
-		return Result;
-	}
 
 	int Shutdown(int how);
 

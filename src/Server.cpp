@@ -1,14 +1,8 @@
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <winsock2.h>
-#include <windows.h>
-
 #include <iostream>
 #include <thread>
 #include <atomic>
 
+#include "WinsockInit.h"
 #include "Socket.h"
 #include "Retry.h"
 #include "Framing.h"
@@ -60,18 +54,9 @@ void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 
 int main()
 {
-	// Info about Winsock init
-	WSADATA WsaData;
-	int Result;
-	Result = WSAStartup(MAKEWORD(2, 2), &WsaData);
-
-	// If Winsock init failed
-	if (Result != 0)
-	{
-		std::cout << "Startup failed :(" << '\n';
-
-		return 1;
-	}
+	// Winsock init
+	WinsockInit winsock;
+	
 
 	// Socket
 	Socket ListenSocket; // IPv4, TCP, auto protocol
@@ -173,7 +158,5 @@ int main()
 	// Wait for the new thread to finish (it doesnt work for now)
 	Thread1.join();
 
-	// WS2_32 terminate
-	WSACleanup();
 	return 0;
 }

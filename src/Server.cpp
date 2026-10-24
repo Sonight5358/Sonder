@@ -155,7 +155,7 @@ int main()
 		}
 	}
 
-	// Wait for the new thread to finish (it doesnt work for now)
+	// Wait for the new thread to finish
 	Thread1.join();
 
 	return 0;

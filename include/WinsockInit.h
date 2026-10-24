@@ -28,7 +28,7 @@ public:
 	// Copy constructor
 	WinsockInit(const WinsockInit& other) = delete;
 
-	//Copy asingment
+	// Copy asingment
 	WinsockInit& operator = (const WinsockInit& other) = delete;
 
 	~WinsockInit()

@@ -128,7 +128,7 @@ ApplicationWindow{
 
         onSendRequested: function(message){
             rectChat.addMessage(message, true)
-            chatClient.messageReceived(message)
+            chatClient.sendMessage(message)
         }
 
         anchors.bottom: parent.bottom

@@ -40,8 +40,11 @@ Socket& Socket::operator = (Socket&& other) noexcept
 
 // Destructor
 Socket::~Socket()
-{
-	closesocket(SocketDesc);
+{	
+	if (SocketDesc != INVALID_SOCKET)
+	{
+		closesocket(SocketDesc);
+	}
 }
 
 // Bind Ip and port with this exact socket (IPv4)

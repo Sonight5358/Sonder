@@ -1,6 +1,5 @@
 #include <iostream>
 #include <thread>
-#include <atomic>
 
 #include "WinsockInit.h"
 #include "Socket.h"
@@ -8,7 +7,7 @@
 #include "Framing.h"
 
 // Receive message from client (blocking fuction) in a separate thread
-void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
+void ReceiveThread(Socket ConnectionSocket)
 {
 	try
 	{
@@ -48,8 +47,6 @@ void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 	{
 		std::cout << "Error: " << e.what() << '\n';
 	}
-
-	connected = false;
 }
 
 int main()
@@ -88,75 +85,37 @@ int main()
 		std::chrono::seconds(1)
 	);
 
-	// Info about client address
-	sockaddr_in ClientAddr{};
-
-	// Accept of incoming connection attempt and saving the same parameters as a client socket
-	std::optional<Socket> ConnectionSocketOp = Retry<Socket>(
-		[&]()
-		{
-			return ListenSocket.Accept(ClientAddr); // accept() will populate second field with client address
-		},
-		3,
-		std::chrono::seconds(1),
-		true
-	);
-
-	Socket ConnectionSocket = std::move(ConnectionSocketOp.value()); // Using move constructor
-
-	std::string line;
-
-	// Variable for threads without data race
-	std::atomic<bool> connected = true;
-
-	// Thread for receiving messages from client
-	std::thread Thread1(ReceiveThread, std::ref(ConnectionSocket), std::ref(connected));
-
 	while (true)
 	{
-		// Send
-		std::getline(std::cin, line);
+		// Info about client address
+		sockaddr_in ClientAddr{};
 
-		if (connected == false)
+		try
 		{
-			std::cout << "Connection closed" << '\n';
-			break;
+			// Accept of incoming connection attempt and saving the same parameters as a client socket
+			std::optional<Socket> ConnectionSocketOp = Retry<Socket>(
+				[&]()
+				{
+					return ListenSocket.Accept(ClientAddr); // accept() will populate second field with client address
+				},
+				3,
+				std::chrono::seconds(1),
+				true
+			);
+
+			Socket ConnectionSocket = std::move(ConnectionSocketOp.value()); // Using move constructor
+
+			// Thread for receiving messages from client
+			std::thread NewThread(ReceiveThread, std::move(ConnectionSocket));
+
+			NewThread.detach();
 		}
 
-		if (line == "/exit")
-		{	
-			ConnectionSocket.Shutdown(SD_BOTH);
-			break;
-		}
-
-		try 
+		catch (const std::exception& e)
 		{
-			// Send message from server on enter
-			SendPacket(ConnectionSocket, line);
-		}
-		
-		catch (const SocketError& e)
-		{
-			if (e.code() == WSAESHUTDOWN)
-			{	
-				std::cout << "Connection closed" << '\n';
-				// To be able to go the join after /exit
-				break;
-			}
-
-			std::cout << e.what() << '\n';
-			break;
-		}
-
-		catch (const std::length_error&)
-		{
-			std::cout << "Message is too long" << '\n';
-			continue;
+			std::cout << "Error: " << e.what() << '\n';
 		}
 	}
-
-	// Wait for the new thread to finish
-	Thread1.join();
 
 	return 0;
 }

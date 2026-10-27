@@ -1,19 +1,20 @@
 #include <iostream>
 #include <thread>
+#include <memory>
 
 #include "WinsockInit.h"
 #include "Socket.h"
 #include "Retry.h"
-#include "Framing.h"
+#include "Connection.h"
 
 // Receive message from client (blocking fuction) in a separate thread
-void ReceiveThread(Socket ConnectionSocket)
+void ReceiveThread(std::shared_ptr<Connection> Client)
 {
 	try
 	{
 		while (true)
 		{	
-			std::optional<std::string> message = RecvPacket(ConnectionSocket);
+			std::optional<std::string> message = Client->Recv();
 
 			if (!message)
 			{
@@ -53,10 +54,9 @@ int main()
 {
 	// Winsock init
 	WinsockInit winsock;
-	
 
 	// Socket
-	Socket ListenSocket; // IPv4, TCP, auto protocol
+	Socket ListenSocket;
 
 	// Struct with server info
 	sockaddr_in ServAddr{};
@@ -103,10 +103,11 @@ int main()
 				true
 			);
 
-			Socket ConnectionSocket = std::move(ConnectionSocketOp.value()); // Using move constructor
+			// New shared_ptr for every client
+			std::shared_ptr<Connection> NewClient = std::make_shared<Connection>(std::move(ConnectionSocketOp.value()));
 
 			// Thread for receiving messages from client
-			std::thread NewThread(ReceiveThread, std::move(ConnectionSocket));
+			std::thread NewThread(ReceiveThread, std::move(NewClient));
 
 			NewThread.detach();
 		}

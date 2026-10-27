@@ -3,6 +3,8 @@
 #include <mutex>
 #include <vector>
 #include <memory>
+#include <string>
+#include <string_view>
 
 #include "Connection.h"
 
@@ -13,9 +15,7 @@ private:
 	std::mutex mutex;
 
 public:
-	void Add(std::shared_ptr<Connection> client)
-	{
-		std::lock_guard<std::mutex> lock(mutex);
-		list.push_back(std::move(client));
-	}
+	void Add(std::shared_ptr<Connection> client);
+
+	void Broadcast(const std::shared_ptr<Connection>& sender, std::string_view text);
 };

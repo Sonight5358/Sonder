@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Backend library
-add_library(SonderBack STATIC src/Socket.cpp)
+add_library(SonderBack STATIC src/Socket.cpp src/ClientList.cpp)
 target_include_directories(SonderBack PUBLIC include)
 target_link_libraries(SonderBack PUBLIC ws2_32)
 

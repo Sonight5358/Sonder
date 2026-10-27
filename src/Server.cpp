@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 #include <memory>
+#include <functional>
 
 #include "WinsockInit.h"
 #include "Socket.h"
@@ -9,7 +10,7 @@
 #include "ClientList.h"
 
 // Receive message from client (blocking fuction) in a separate thread
-void ReceiveThread(std::shared_ptr<Connection> Client)
+void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 {
 	try
 	{
@@ -26,6 +27,8 @@ void ReceiveThread(std::shared_ptr<Connection> Client)
 			{
 				std::cout << "Client: " << *message << '\n';
 			}
+
+			list.Broadcast(Client, *message);
 		}
 	}
 
@@ -114,7 +117,7 @@ int main()
 			clist.Add(NewClient);
 
 			// Thread for receiving messages from client
-			std::thread NewThread(ReceiveThread, std::move(NewClient));
+			std::thread NewThread(ReceiveThread, std::move(NewClient), std::ref(clist));
 
 			NewThread.detach();
 		}

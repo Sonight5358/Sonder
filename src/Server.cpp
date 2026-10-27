@@ -6,6 +6,7 @@
 #include "Socket.h"
 #include "Retry.h"
 #include "Connection.h"
+#include "ClientList.h"
 
 // Receive message from client (blocking fuction) in a separate thread
 void ReceiveThread(std::shared_ptr<Connection> Client)
@@ -85,6 +86,10 @@ int main()
 		std::chrono::seconds(1)
 	);
 
+
+	// List of clients
+	ClientList clist;
+
 	while (true)
 	{
 		// Info about client address
@@ -105,6 +110,8 @@ int main()
 
 			// New shared_ptr for every client
 			std::shared_ptr<Connection> NewClient = std::make_shared<Connection>(std::move(ConnectionSocketOp.value()));
+
+			clist.Add(NewClient);
 
 			// Thread for receiving messages from client
 			std::thread NewThread(ReceiveThread, std::move(NewClient));

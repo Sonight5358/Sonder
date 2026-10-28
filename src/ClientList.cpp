@@ -11,10 +11,16 @@ void ClientList::Add(std::shared_ptr<Connection> client)
 }
 
 void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::string_view text)
-{
-	std::lock_guard<std::mutex> lock(mutex);
+{	
+	std::vector<std::shared_ptr<Connection>> snapshot;
 
-	for (const std::shared_ptr<Connection>& x : list)
+	{
+		std::lock_guard<std::mutex> lock(mutex);
+
+		snapshot = list;
+	}
+
+	for (const std::shared_ptr<Connection>& x : snapshot)
 	{	
 		if (x != sender)
 		{

@@ -18,4 +18,6 @@ public:
 	void Add(std::shared_ptr<Connection> client);
 
 	void Broadcast(const std::shared_ptr<Connection>& sender, std::string_view text);
+
+	void Remove(const std::shared_ptr<Connection>& client);
 };

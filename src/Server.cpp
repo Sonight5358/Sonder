@@ -52,6 +52,8 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 	{
 		std::cout << "Error: " << e.what() << '\n';
 	}
+
+	list.Remove(Client);
 }
 
 int main()

@@ -84,9 +84,13 @@ void ChatClient::receiveLoop()
 			std::chrono::seconds(1)
 		);
 
+		// temporary
+        SendPacket(clientSocket, "GuiGuest");
+
 		isConnected = true;
 		emit connected();
 
+        
 		while (true)
 		{
 			std::optional<std::string> message = RecvPacket(clientSocket);

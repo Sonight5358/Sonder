@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <optional>
 
+inline constexpr size_t MaxNameLen = 32;
 inline constexpr uint32_t maxMessageSize = 64 * 1024; // 64kb
 
 inline void SendPacket(Socket& socket, std::string_view message)

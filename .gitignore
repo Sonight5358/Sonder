@@ -6,6 +6,10 @@
 *.sln.docstates
 *.env
 
+# Rca files
+RCa*
+RDa*
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

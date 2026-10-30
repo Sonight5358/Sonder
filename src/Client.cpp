@@ -65,6 +65,22 @@ int main()
 	// Server address
 	sockaddr_in ServerAddr = MakeAddress("127.0.0.1", 5358);
 
+	std::string nickname;
+
+	while (true)
+	{
+		std::getline(std::cin, nickname);
+
+		if (!nickname.empty() && nickname.length() <= MaxNameLen)
+		{
+			break;
+		}
+		else
+		{
+			std::cout << "Invalid nickname, try again" << '\n';
+		}
+	}
+
 	// Connection to server
 	RetryVoid(
 		[&]() 
@@ -75,6 +91,31 @@ int main()
 		std::chrono::seconds(1)
 	);
 
+	// Name
+	try
+	{
+		// Send message from client
+		SendPacket(ConnectionSocket, nickname);
+	}
+
+	catch (const SocketError& e)
+	{
+		if (e.code() == WSAESHUTDOWN)
+		{
+			std::cout << "Connection closed" << '\n';
+			// To be able to go the join after /exit
+		}
+
+		std::cout << e.what() << '\n';
+	}
+
+	catch (const std::length_error&)
+	{
+		std::cout << "Message is too long" << '\n';
+	}
+
+
+	// Message text
 	std::string line;
 
 	// Variable for threads without data race
@@ -102,7 +143,7 @@ int main()
 
 		try
 		{
-			// Send message from client on enter
+			// Send message from client
 			SendPacket(ConnectionSocket, line);
 		}
 

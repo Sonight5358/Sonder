@@ -11,9 +11,29 @@
 
 // Receive message from client (blocking fuction) in a separate thread
 void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
-{
+{	
+	// Name
+	std::optional<std::string> name;
+
 	try
-	{
+	{	
+		name = Client->Recv();
+
+		if (!name)
+		{
+			std::cout << "No name" << '\n';
+			return;
+		}
+
+		if (name->length() >= MaxNameLen || name->empty())
+		{
+			std::cout << "Invalid name" << '\n';
+			return;
+		}
+
+		list.Add(Client);
+		std::cout << *name << " joined" << '\n';
+
 		while (true)
 		{	
 			std::optional<std::string> message = Client->Recv();
@@ -25,10 +45,10 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 			}
 			else
 			{
-				std::cout << "Client: " << *message << '\n';
+				std::cout << *name << ": " << *message << '\n';
 			}
 
-			list.Broadcast(Client, *message);
+			list.Broadcast(Client, *name + ": " + *message);
 		}
 	}
 
@@ -40,7 +60,7 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 		}
 		else if (e.code() == WSAECONNRESET)
 		{
-			std::cout << "Peer disconnected" << '\n';
+			std::cout << *name << " disconnected" << '\n';
 		}
 		else
 		{
@@ -115,8 +135,6 @@ int main()
 
 			// New shared_ptr for every client
 			std::shared_ptr<Connection> NewClient = std::make_shared<Connection>(std::move(ConnectionSocketOp.value()));
-
-			clist.Add(NewClient);
 
 			// Thread for receiving messages from client
 			std::thread NewThread(ReceiveThread, std::move(NewClient), std::ref(clist));

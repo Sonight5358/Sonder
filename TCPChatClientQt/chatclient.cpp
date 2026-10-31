@@ -8,7 +8,7 @@
 
 ChatClient::ChatClient(QObject *parent) : QObject(parent)
 {
-    clientThread = std::thread(&ChatClient::receiveLoop, this);
+
 }
 
 void ChatClient::sendMessage(const QString &message)
@@ -67,12 +67,12 @@ ChatClient::~ChatClient()
     }
 }
 
-void ChatClient::receiveLoop()
+void ChatClient::receiveLoop(std::string address, std::string nickname)
 {
 	try
     {
         // Client address
-        sockaddr_in serverAddr = MakeAddress("127.0.0.1", 5358);
+        sockaddr_in serverAddr = MakeAddress(address, 5358);
 
 		// Connection to server
 		RetryVoid(
@@ -84,8 +84,7 @@ void ChatClient::receiveLoop()
 			std::chrono::seconds(1)
 		);
 
-		// temporary
-        SendPacket(clientSocket, "GuiGuest");
+        SendPacket(clientSocket, nickname);
 
 		isConnected = true;
 		emit connected();
@@ -130,4 +129,14 @@ void ChatClient::receiveLoop()
 
 	isConnected = false;
 	emit disconnected();
+}
+
+void ChatClient::connectToServer(const QString &address, const QString &nickname)
+{
+    if (clientThread.joinable())
+    {
+        return;
+    }
+
+    clientThread = std::thread(&ChatClient::receiveLoop, this, address.toStdString(), nickname.toStdString());
 }

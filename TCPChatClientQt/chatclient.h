@@ -19,7 +19,7 @@ private:
     std::thread clientThread;
     std::atomic<bool> isConnected = false;
 
-    void receiveLoop();
+    void receiveLoop(std::string address, std::string nickname);
 
 public:
     explicit ChatClient(QObject* parent = nullptr);
@@ -27,6 +27,8 @@ public:
     Q_INVOKABLE void sendMessage(const QString &message);
 
     ~ChatClient() override;
+
+    Q_INVOKABLE void connectToServer(const QString &address, const QString &nickname);
 
 signals:
     void messageReceived(const QString &message);

@@ -34,6 +34,7 @@ ApplicationWindow{
     property double opacityMenu: 0.9
     property double borderIdleOpacity: 0.4
     property int windowsRadius: 8
+    property string connectionStatus: "Connecting..."
     property font appFont: Qt.font({family: manrope.name, weight: 600, pixelSize: 22})
     property font appTextFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 18})
     property font appSmallFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 14})
@@ -63,6 +64,8 @@ ApplicationWindow{
             appWindow.contentItem.forceActiveFocus()
         }
     }
+
+    Component.onCompleted: chatClient.connectToServer("127.0.0.1", "Guest")
 
 
 
@@ -189,6 +192,7 @@ ApplicationWindow{
         borderColor: appWindow.borderColor
         opacityPanels: appWindow.opacityPanels
         appTextFont: appWindow.appTextFont
+        connectionStatus: appWindow.connectionStatus
     }
 
     ChatClient{
@@ -196,8 +200,14 @@ ApplicationWindow{
     }
     Connections{
         target: chatClient
-        function onMessageReceived(message){
+        function onMessageReceived(message) {
             rectChat.addMessage(message, false)
+        }
+        function onConnected() {
+            appWindow.connectionStatus = "Connected"
+        }
+        function onDisconnected() {
+            appWindow.connectionStatus = "Disconnected"
         }
     }
 }

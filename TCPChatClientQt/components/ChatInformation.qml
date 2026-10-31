@@ -11,6 +11,7 @@ Item{
     property color borderColor
     property double opacityPanels
     property font appTextFont
+    property string connectionStatus
 
     property bool collapsed: false
     property real collapse: 0
@@ -66,11 +67,12 @@ Item{
         }
 
         Text{
-            text: "Text"
+            text: connectionStatus
             font: appTextFont
             color: textColor
 
             anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
 
             x: 20 * (1 - root.collapse) + (parent.width - width) / 2 * root.collapse
         }

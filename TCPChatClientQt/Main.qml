@@ -67,11 +67,6 @@ ApplicationWindow{
         }
     }
 
-    Component.onCompleted: {
-        chatClient.connectToServer("127.0.0.1", "Guest")
-        appWindow.isAppShown = true
-    }
-
 
 
 
@@ -252,6 +247,35 @@ ApplicationWindow{
             }
         }
     }
+
+    // Entry screen
+    EntryScreen{
+        id: entryScreen
+
+        anchors.fill: parent
+        anchors.margins: 100
+
+        panelsColor: appWindow.panelsColor
+        mainColor: appWindow.mainColor
+        textColor: appWindow.textColor
+        borderColor: appWindow.borderColor
+        opacityPanels: appWindow.opacityPanels
+        borderIdleOpacity: appWindow.borderIdleOpacity
+        opacityMenu: appWindow.opacityMenu
+        appSmallFont: appWindow.appSmallFont
+        appTextFont: appWindow.appTextFont
+        defaultGrad: appWindow.defaultGrad
+        windowsRadius: appWindow.windowsRadius
+        marginChatsField: appWindow.marginChatsField
+        startupDuration: appWindow.startupDuration
+
+        onNicknameEntered: function(nickname){
+            entryScreen.isEntryShowed = false
+            chatClient.connectToServer("127.0.0.1", nickname)
+            appWindow.isAppShown = true
+        }
+    }
+
 
     ChatClient{
         id: chatClient

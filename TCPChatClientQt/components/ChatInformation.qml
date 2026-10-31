@@ -23,7 +23,7 @@ Item{
     property int startupDuration
 
     opacity: isAppShown ? 1 : 0
-    height: 60 - 10 * root.collapse
+    height: 52 - 10 * root.collapse
 
     Behavior on opacity{
         NumberAnimation{
@@ -70,7 +70,7 @@ Item{
         Rectangle{
             id: chatInfoTop
             anchors.fill: parent
-            anchors.margins: 10
+            anchors.margins: 6
             color: Qt.alpha(mainColor, opacityPanels)
             radius: 30
 

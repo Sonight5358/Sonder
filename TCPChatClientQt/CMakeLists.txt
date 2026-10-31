@@ -35,6 +35,8 @@ qt_add_qml_module(Sonder
         assets/SomethingInteresting.json
         assets/SendS.wav
         fonts/Manrope-VariableFont_wght.ttf
+        QML_FILES components/EntryScreen.qml
+        QML_FILES components/RegistrationArea.qml
 
 )
 

@@ -104,7 +104,7 @@ Item{
         Rectangle {
             id: rectBottomTop
             anchors.fill: parent
-            anchors.margins: 10
+            anchors.margins: 6
             color: Qt.alpha(mainColor, opacityPanels)
             radius: 30
 

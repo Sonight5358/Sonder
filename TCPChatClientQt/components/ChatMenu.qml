@@ -15,6 +15,7 @@ Menu{
     property double borderIdleOpacity
     property double opacityMenu
     property font appSmallFont
+    property real textShifting: 0
 
     implicitWidth: 200
 
@@ -65,6 +66,27 @@ Menu{
                 color: textColor
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignBaseline
+
+                transformOrigin: Item.Left
+                scale: menuItem.highlighted ? 1.05 : 1
+
+                Behavior on scale{
+                    NumberAnimation{
+                        duration: 75
+                        easing.type: Easing.OutCubic
+                    }
+                }
+
+                transform: Translate{
+                    x: menuItem.highlighted ? 3 : 0
+
+                    Behavior on x{
+                        NumberAnimation{
+                            duration: 75
+                            easing.type: Easing.OutCubic
+                        }
+                    }
+                }
             }
             Text{
                 text: menuItem.action?.shortcutText ?? ""
@@ -82,7 +104,7 @@ Menu{
             Behavior on opacity{
                 NumberAnimation{
                     duration: 75
-                    easing.type: Easing.InOutCubic
+                    easing.type: Easing.OutCubic
                 }
             }
         }
@@ -97,6 +119,7 @@ Menu{
             easing.type: Easing.OutCubic
         }
     }
+
     exit: Transition{
         NumberAnimation{
             property: "opacity"

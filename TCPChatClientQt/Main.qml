@@ -34,6 +34,8 @@ ApplicationWindow{
     property double opacityMenu: 0.9
     property double borderIdleOpacity: 0.4
     property int windowsRadius: 8
+    property bool isAppShown: false
+    property int startupDuration: 750
     property string connectionStatus: "Connecting..."
     property font appFont: Qt.font({family: manrope.name, weight: 600, pixelSize: 22})
     property font appTextFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 18})
@@ -65,7 +67,10 @@ ApplicationWindow{
         }
     }
 
-    Component.onCompleted: chatClient.connectToServer("127.0.0.1", "Guest")
+    Component.onCompleted: {
+        chatClient.connectToServer("127.0.0.1", "Guest")
+        appWindow.isAppShown = true
+    }
 
 
 
@@ -98,6 +103,20 @@ ApplicationWindow{
         windowsRadius: appWindow.windowsRadius
         marginChatsField: appWindow.marginChatsField
         sendAreaHeight: rectChat.y + rectChat.height - messageSendArea.y
+
+        isAppShown: appWindow.isAppShown
+        startupDuration: appWindow.startupDuration
+
+        transform: Translate{
+            x: isAppShown ? 0 : 80
+
+            Behavior on x{
+                NumberAnimation{
+                    duration: startupDuration
+                    easing.type: Easing.OutCubic
+                }
+            }
+        }
     }
 
     // List of chats
@@ -121,8 +140,21 @@ ApplicationWindow{
         defaultGrad: appWindow.defaultGrad
         windowsRadius: appWindow.windowsRadius
         marginChatsField: appWindow.marginChatsField
+        isAppShown: appWindow.isAppShown
+        startupDuration: appWindow.startupDuration
 
         width: widthPanel
+
+        transform: Translate{
+            x: isAppShown ? 0 : -(rectLeft.width + marginEl)
+
+            Behavior on x{
+                NumberAnimation{
+                    duration:  startupDuration
+                    easing.type: Easing.OutCubic
+                }
+            }
+        }
     }
 
     // Area of sending messages with a button
@@ -152,6 +184,19 @@ ApplicationWindow{
         rightContentMargin: sendButton.width + 15
         marginChatsField: appWindow.marginChatsField
         opacityMenu: appWindow.opacityMenu
+        isAppShown: appWindow.isAppShown
+        startupDuration: appWindow.startupDuration
+
+        transform: Translate{
+            y: isAppShown ? 0 : (messageSendArea.height * 2 + marginEl)
+
+            Behavior on y{
+                NumberAnimation{
+                    duration: startupDuration
+                    easing.type: Easing.OutCubic
+                }
+            }
+        }
 
         onToButton: function(){
             sendButton.startSend()
@@ -193,6 +238,19 @@ ApplicationWindow{
         opacityPanels: appWindow.opacityPanels
         appTextFont: appWindow.appTextFont
         connectionStatus: appWindow.connectionStatus
+        isAppShown: appWindow.isAppShown
+        startupDuration: appWindow.startupDuration
+
+        transform: Translate{
+            y: isAppShown ? 0 : -(chatInformation.height * 2 + marginEl)
+
+            Behavior on y{
+                NumberAnimation{
+                    duration: startupDuration
+                    easing.type: Easing.OutCubic
+                }
+            }
+        }
     }
 
     ChatClient{

@@ -22,6 +22,19 @@ Item{
     readonly property bool highlighted: hoverHandler.hovered
                                         || messageField.activeFocus
                                         || contextMenu.visible
+
+    property bool isAppShown
+    property int startupDuration
+
+    opacity: isAppShown ? 1 : 0
+
+    Behavior on opacity{
+        NumberAnimation{
+            duration:  startupDuration
+            easing.type: Easing.OutCubic
+        }
+    }
+
     signal sendRequested(string message)
     signal toButton()
 
@@ -54,7 +67,7 @@ Item{
         radius: rectBottom.radius
         blur: 30
         spread: 5
-        color: Qt.rgba(0, 0, 0, opacityPanels - 0.1)
+        color: Qt.rgba(0, 0, 0, opacityPanels - 0.3)
     }
 
     NumberAnimation{

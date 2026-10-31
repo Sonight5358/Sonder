@@ -19,7 +19,18 @@ Item{
     property double chatTopMargin: 50 - 20 * root.collapse
     property double chatLeftMargin: 160 + 40 * root.collapse
     property double chatRightMargin: 160 + 40 * root.collapse
+    property bool isAppShown
+    property int startupDuration
+
+    opacity: isAppShown ? 1 : 0
     height: 60 - 10 * root.collapse
+
+    Behavior on opacity{
+        NumberAnimation{
+            duration:  startupDuration
+            easing.type: Easing.OutCubic
+        }
+    }
 
     NumberAnimation{
         id: collapseAnim

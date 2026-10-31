@@ -13,6 +13,17 @@ Item{
     property Gradient defaultGrad
     property int windowsRadius
     property int marginChatsField
+    property bool isAppShown
+    property int startupDuration
+
+    opacity: isAppShown ? 1 : 0
+
+    Behavior on opacity{
+        NumberAnimation{
+            duration:  startupDuration
+            easing.type: Easing.OutCubic
+        }
+    }
 
     Rectangle{
         id: rectLeft

@@ -22,6 +22,17 @@ Item{
     property font appSmallFont
     property real sendAreaHeight: 0
     property int menuIndex: -1
+    property bool isAppShown
+    property int startupDuration
+
+    opacity: isAppShown ? 1 : 0
+
+    Behavior on opacity{
+        NumberAnimation{
+            duration:  startupDuration
+            easing.type: Easing.OutCubic
+        }
+    }
 
     ListModel{
         id: messageModel

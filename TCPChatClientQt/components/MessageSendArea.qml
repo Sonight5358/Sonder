@@ -191,31 +191,35 @@ Item{
                     borderIdleOpacity: root.borderIdleOpacity
                     marginChatsField: root.marginChatsField
 
-                    implicitWidth: 180
+                    implicitWidth: 200
 
                     Action{
                         text: "Cut"
                         property string shortcutText: "Ctrl+X"
                         enabled: messageField.selectedText.length > 0
                         onTriggered: messageField.cut()
+                        property string iconName: "scissors"
                     }
                     Action{
                         text: "Copy"
                         property string shortcutText: "Ctrl+C"
                         enabled: messageField.selectedText.length > 0
                         onTriggered: messageField.copy()
+                        property string iconName: "copy"
                     }
                     Action{
                         text: "Paste"
                         property string shortcutText: "Ctrl+V"
                         enabled: messageField.canPaste
                         onTriggered: messageField.paste()
+                        property string iconName: "clipboard"
                     }
                     Action{
                         text: "Select All"
                         property string shortcutText: "Ctrl+A"
                         enabled: messageField.length > 0
                         onTriggered: messageField.selectAll()
+                        property string iconName: "scan-text"
                     }
                 }
 

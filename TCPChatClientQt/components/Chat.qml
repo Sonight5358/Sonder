@@ -60,17 +60,19 @@ Item{
         appTextFont: root.appTextFont
         appSmallFont: root.appSmallFont
 
-        implicitWidth: 140
+        implicitWidth: 150
 
         onClosed: root.menuIndex = -1
 
         Action{
             text: "Copy"
             onTriggered: Clipboard.setText(messageModel.get(root.menuIndex).messageText)
+            property string iconName: "copy"
         }
         Action{
             text: "Delete"
             onTriggered: root.deleteMessage(root.menuIndex)
+            property string iconName: "trash"
         }
     }
 

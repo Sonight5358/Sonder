@@ -17,7 +17,7 @@ Menu{
     property font appSmallFont
     property real textShifting: 0
 
-    implicitWidth: 200
+    implicitWidth: 250
 
     topPadding: marginChatsField
     bottomPadding: marginChatsField
@@ -59,6 +59,17 @@ Menu{
 
         contentItem: RowLayout{
             opacity: enabled ? 1 : 0.35
+
+            Image{
+                readonly property string iconName: menuItem.action?.iconName ?? ""
+
+                visible: iconName !== ""
+                source: iconName !== "" ? "qrc:/qt/qml/TCPChatClientQt/assets/icons/" + iconName + ".svg" : ""
+                sourceSize: Qt.size(16, 16)
+                Layout.preferredWidth: 16
+                Layout.preferredHeight: 16
+                Layout.alignment: Qt.AlignVCenter
+            }
 
             Text{
                 text: menuItem.text

@@ -28,6 +28,10 @@ qt_add_qml_module(Sonder
         components/Chat.qml
         components/People.qml
         components/ChatMenu.qml
+        components/EntryScreen.qml
+        components/RegistrationArea.qml
+        components/RegistrationButton.qml
+        components/Cursor.qml
 
     SOURCES chatclient.h chatclient.cpp clipboard.h clipboard.cpp
 
@@ -35,11 +39,11 @@ qt_add_qml_module(Sonder
         assets/SomethingInteresting.json
         assets/SendS.wav
         fonts/Manrope-VariableFont_wght.ttf
-        QML_FILES components/EntryScreen.qml
-        QML_FILES components/RegistrationArea.qml
-        QML_FILES components/RegistrationButton.qml
-        QML_FILES components/Cursor.qml
-
+        assets/icons/clipboard.svg
+        assets/icons/copy.svg
+        assets/icons/scan-text.svg
+        assets/icons/scissors.svg
+        assets/icons/trash.svg
 )
 
 qt_add_shaders(Sonder "app_shaders"

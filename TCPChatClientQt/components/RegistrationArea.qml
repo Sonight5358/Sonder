@@ -105,6 +105,13 @@ Item{
             placeholderText: "Nickname"
             placeholderTextColor: Qt.alpha(textColor, 0.6)
 
+            // Cursor
+            cursorDelegate: Item{}
+            Cursor{
+                textColor: root.textColor
+                field: regField
+            }
+
             ContextMenu.menu: ChatMenu{
                 id: contextMenu
 

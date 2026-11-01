@@ -263,6 +263,7 @@ ApplicationWindow{
         borderIdleOpacity: appWindow.borderIdleOpacity
         opacityMenu: appWindow.opacityMenu
         appSmallFont: appWindow.appSmallFont
+        appFont: appWindow.appFont
         appTextFont: appWindow.appTextFont
         defaultGrad: appWindow.defaultGrad
         windowsRadius: appWindow.windowsRadius
@@ -273,6 +274,7 @@ ApplicationWindow{
             entryScreen.isEntryShowed = false
             chatClient.connectToServer("127.0.0.1", nickname)
             appWindow.isAppShown = true
+            messageSendArea.focusFieldChat()
         }
     }
 

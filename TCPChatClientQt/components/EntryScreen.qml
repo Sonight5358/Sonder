@@ -18,6 +18,7 @@ Item{
     property int marginChatsField
     property double opacityMenu
     property font appSmallFont
+    property font appFont
     property int startupDuration
 
     property bool isEntryShowed: false
@@ -95,25 +96,55 @@ Item{
         }
     }
 
-    RegistrationArea{
-        id: registrationArea
+    Column{
         anchors.centerIn: parent
+        spacing: 24
 
-        width: 300
+        Text{
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: "Glad to see you"
+            font: appFont
+            color: textColor
+        }
 
-        panelsColor: root.panelsColor
-        mainColor: root.mainColor
-        textColor: root.textColor
-        borderColor: root.borderColor
-        marginChatsField: root.marginChatsField
-        opacityPanels: root.opacityPanels
-        appTextFont: root.appTextFont
-        borderIdleOpacity: root.borderIdleOpacity
-        opacityMenu: root.opacityMenu
-        appSmallFont: root.appSmallFont
+        RegistrationArea{
+            id: registrationArea
 
-        onSendRequested: function(message){
-            root.nicknameEntered(message)
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            width: 300
+
+            panelsColor: root.panelsColor
+            mainColor: root.mainColor
+            textColor: root.textColor
+            borderColor: root.borderColor
+            marginChatsField: root.marginChatsField
+            opacityPanels: root.opacityPanels
+            appTextFont: root.appTextFont
+            borderIdleOpacity: root.borderIdleOpacity
+            opacityMenu: root.opacityMenu
+            appSmallFont: root.appSmallFont
+
+            onSendRequested: function(message){
+                root.nicknameEntered(message)
+            }
+        }
+
+        RegistrationButton{
+            id: regButton
+
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            isEmpty: registrationArea.isEmpty
+            mainColor: root.mainColor
+            textColor: root.textColor
+            appFont: root.appFont
+
+            onClicked: {
+                registrationArea.send()
+            }
+
+            width: 300
         }
     }
 }

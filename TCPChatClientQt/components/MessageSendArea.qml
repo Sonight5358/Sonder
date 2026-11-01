@@ -58,6 +58,10 @@ Item{
         messageField.clear()
     }
 
+    function focusFieldChat(){
+        messageField.forceActiveFocus()
+    }
+
     RectangularShadow{
         id: rectShadow
 
@@ -166,6 +170,13 @@ Item{
                 placeholderTextColor: Qt.alpha(textColor, 0.6)
 
                 wrapMode: TextEdit.Wrap
+
+                // Cursor
+                cursorDelegate: Item{}
+                Cursor{
+                    textColor: root.textColor
+                    field: messageField
+                }
 
                 ContextMenu.menu: ChatMenu{
                     id: contextMenu

@@ -37,6 +37,8 @@ qt_add_qml_module(Sonder
         fonts/Manrope-VariableFont_wght.ttf
         QML_FILES components/EntryScreen.qml
         QML_FILES components/RegistrationArea.qml
+        QML_FILES components/RegistrationButton.qml
+        QML_FILES components/Cursor.qml
 
 )
 

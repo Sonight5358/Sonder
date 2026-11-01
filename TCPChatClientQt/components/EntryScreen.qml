@@ -25,9 +25,10 @@ Item{
 
     signal nicknameEntered(string nickname)
 
-    Component.onCompleted: {
-        isEntryShowed = true
-        registrationArea.focusField()
+    onIsEntryShowedChanged: {
+        if (isEntryShowed){
+            registrationArea.focusField()
+        }
     }
 
     opacity: 0

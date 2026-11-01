@@ -7,6 +7,8 @@
 
 int main(int argc, char *argv[])
 {
+    QGuiApplication::setOrganizationName("Sonight");
+    QGuiApplication::setApplicationName("Sonder");
     // Setting api
     QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
 

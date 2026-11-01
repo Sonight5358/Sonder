@@ -1,4 +1,5 @@
 import QtQuick
+import QtCore
 import QtQuick.Controls.Basic
 import "components"
 import TCPChatClientQt
@@ -19,6 +20,11 @@ ApplicationWindow{
     FontLoader{
         id: manrope
         source: "qrc:/qt/qml/TCPChatClientQt/fonts/Manrope-VariableFont_wght.ttf"
+    }
+
+    Settings{
+        id: settings
+        property string nickname: ""
     }
 
     property color panelsColor: "#0A0A0A"
@@ -58,6 +64,24 @@ ApplicationWindow{
         GradientStop{
             position: 1.0
             color: Qt.alpha("#2E2E2E", opacityPanels)
+        }
+    }
+
+    function enterApp(nickname){
+        entryScreen.isEntryShowed = false
+        appWindow.isAppShown = true
+
+        chatClient.connectToServer("127.0.0.1", nickname)
+        messageSendArea.focusFieldChat()
+    }
+
+    Component.onCompleted: {
+        if (settings.nickname !== ""){
+            enterApp(settings.nickname)
+        }
+
+        else{
+            entryScreen.isEntryShowed = true
         }
     }
 
@@ -271,10 +295,8 @@ ApplicationWindow{
         startupDuration: appWindow.startupDuration
 
         onNicknameEntered: function(nickname){
-            entryScreen.isEntryShowed = false
-            chatClient.connectToServer("127.0.0.1", nickname)
-            appWindow.isAppShown = true
-            messageSendArea.focusFieldChat()
+            settings.nickname = nickname
+            appWindow.enterApp(nickname)
         }
     }
 

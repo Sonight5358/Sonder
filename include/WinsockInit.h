@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -37,3 +38,12 @@ public:
 		WSACleanup();
 	}
 };
+
+#else
+class WinsockInit
+{
+public:
+	WinsockInit() {}
+};
+
+#endif

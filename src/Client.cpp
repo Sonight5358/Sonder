@@ -32,11 +32,11 @@ void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 
 	catch (const SocketError& e)
 	{
-		if (e.code() == WSAESHUTDOWN)
+		if (e.code() == ConnShutdown)
 		{
 			std::cout << "Disconnected" << '\n';
 		}
-		else if (e.code() == WSAECONNRESET)
+		else if (e.code() == ConnReset)
 		{
 			std::cout << "Peer disconnected" << '\n';
 		}
@@ -100,7 +100,7 @@ int main()
 
 	catch (const SocketError& e)
 	{
-		if (e.code() == WSAESHUTDOWN)
+		if (e.code() == ConnShutdown)
 		{
 			std::cout << "Connection closed" << '\n';
 			// To be able to go the join after /exit
@@ -137,7 +137,7 @@ int main()
 
 		if (line == "/exit")
 		{
-			ConnectionSocket.Shutdown(SD_BOTH);
+			ConnectionSocket.Shutdown(ShutBoth);
 			break;
 		}
 
@@ -149,7 +149,7 @@ int main()
 
 		catch (const SocketError& e)
 		{
-			if (e.code() == WSAESHUTDOWN)
+			if (e.code() == ConnShutdown)
 			{
 				std::cout << "Connection closed" << '\n';
 				// To be able to go the join after /exit

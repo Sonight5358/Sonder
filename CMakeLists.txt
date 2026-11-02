@@ -11,7 +11,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Backend library
 add_library(SonderBack STATIC src/Socket.cpp src/ClientList.cpp)
 target_include_directories(SonderBack PUBLIC include)
-target_link_libraries(SonderBack PUBLIC ws2_32)
+find_package(Threads REQUIRED)
+target_link_libraries(SonderBack PUBLIC Threads::Threads)
+
+# Only on win
+if (WIN32)
+	target_link_libraries(SonderBack PUBLIC ws2_32)
+	target_compile_definitions(SonderBack PUBLIC NOMINMAX WIN32_LEAN_AND_MEAN)
+endif()
 
 # Executables
 add_executable(TCPServer src/Server.cpp)
@@ -24,5 +31,3 @@ option(SONDER_BUILD_GUI "Build the Qt client" ON)
 if (SONDER_BUILD_GUI)
 	add_subdirectory(TCPChatClientQt)
 endif()
-
-target_compile_definitions(SonderBack PUBLIC NOMINMAX WIN32_LEAN_AND_MEAN)

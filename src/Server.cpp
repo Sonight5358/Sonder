@@ -8,6 +8,7 @@
 #include "Retry.h"
 #include "Connection.h"
 #include "ClientList.h"
+#include "Address.h"
 
 // Receive message from client (blocking fuction) in a separate thread
 void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
@@ -25,7 +26,7 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 			return;
 		}
 
-		if (name->length() >= MaxNameLen || name->empty())
+		if (name->length() > MaxNameLen || name->empty())
 		{
 			std::cout << "Invalid name" << '\n';
 			return;
@@ -40,7 +41,7 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 
 			if (!message)
 			{
-				std::cout << "Connection closed" << '\n';
+				std::cout << *name << " closed connection" << '\n';
 				break;
 			}
 			else
@@ -54,13 +55,16 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 
 	catch (const SocketError& e)
 	{
-		if (e.code() == WSAESHUTDOWN)
+		if (e.code() == ConnShutdown)
 		{
 			std::cout << "Disconnected" << '\n';
 		}
-		else if (e.code() == WSAECONNRESET)
-		{
-			std::cout << *name << " disconnected" << '\n';
+		else if (e.code() == ConnReset)
+		{	
+			if (name)
+			{
+				std::cout << *name << " disconnected" << '\n';
+			}
 		}
 		else
 		{
@@ -77,75 +81,91 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 }
 
 int main()
-{
-	// Winsock init
-	WinsockInit winsock;
-
-	// Socket
-	Socket ListenSocket;
-
-	// Struct with server info
-	sockaddr_in ServAddr{};
-	ServAddr.sin_family = AF_INET;			// IPv4
-	ServAddr.sin_port = htons(5358);		// Converts to network byte order
-	ServAddr.sin_addr.s_addr = INADDR_ANY;  // .sin_addr - struct with IP, .s_addr (unsigned long) - field of the .sin_addr for IP, INADDR_ANY - 0.0.0.0 (any address basically)
-
-	// Bind Ip and port with this exact socket
-	RetryVoid(
-		[&]()
-		{
-			ListenSocket.Bind(ServAddr);
-		},
-		3,
-		std::chrono::seconds(1)
-	);
-	
-
-	// Listening
-	RetryVoid(
-		[&]()
-		{
-			ListenSocket.Listen(); // Max length of pending connection queue by default
-		},
-		3,
-		std::chrono::seconds(1)
-	);
-
-
-	// List of clients
-	ClientList clist;
-
-	while (true)
+{	
+	try
 	{
-		// Info about client address
-		sockaddr_in ClientAddr{};
+		// Winsock init
+		WinsockInit winsock;
 
+		// Socket
+		Socket ListenSocket;
+
+#ifndef _WIN32
 		try
 		{
-			// Accept of incoming connection attempt and saving the same parameters as a client socket
-			std::optional<Socket> ConnectionSocketOp = Retry<Socket>(
-				[&]()
-				{
-					return ListenSocket.Accept(ClientAddr); // accept() will populate second field with client address
-				},
-				3,
-				std::chrono::seconds(1),
-				true
-			);
-
-			// New shared_ptr for every client
-			std::shared_ptr<Connection> NewClient = std::make_shared<Connection>(std::move(ConnectionSocketOp.value()));
-
-			// Thread for receiving messages from client
-			std::thread NewThread(ReceiveThread, std::move(NewClient), std::ref(clist));
-
-			NewThread.detach();
+			ListenSocket.SetSocketOption(SOL_SOCKET, SO_REUSEADDR, 1);
 		}
-
-		catch (const std::exception& e)
+		catch (const SocketError& e)
 		{
-			std::cout << "Error: " << e.what() << '\n';
+			std::cout << "Option setting failed: " << e.what() << '\n';
 		}
+#endif
+
+		// Server info
+		sockaddr_in ServAddr = MakeAddress("0.0.0.0", 5358);
+
+		// Bind Ip and port with this exact socket
+		RetryVoid(
+			[&]()
+			{
+				ListenSocket.Bind(ServAddr);
+			},
+			3,
+			std::chrono::seconds(1)
+		);
+
+		// Listening
+		RetryVoid(
+			[&]()
+			{
+				ListenSocket.Listen(); // Max length of pending connection queue by default
+			},
+			3,
+			std::chrono::seconds(1)
+		);
+
+
+
+		// List of clients
+		ClientList clist;
+
+		while (true)
+		{
+			// Info about client address
+			sockaddr_in ClientAddr{};
+
+			try
+			{
+				// Accept of incoming connection attempt and saving the same parameters as a client socket
+				std::optional<Socket> ConnectionSocketOp = Retry<Socket>(
+					[&]()
+					{
+						return ListenSocket.Accept(ClientAddr); // accept() will populate second field with client address
+					},
+					3,
+					std::chrono::seconds(1),
+					true
+				);
+
+				// New shared_ptr for every client
+				std::shared_ptr<Connection> NewClient = std::make_shared<Connection>(std::move(ConnectionSocketOp.value()));
+
+				// Thread for receiving messages from client
+				std::thread NewThread(ReceiveThread, std::move(NewClient), std::ref(clist));
+
+				NewThread.detach();
+			}
+
+			catch (const std::exception& e)
+			{
+				std::cout << "Error: " << e.what() << '\n';
+			}
+		}
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << "Server start failed: " << e.what() << '\n';
+		return 1;
 	}
 
 	return 0;

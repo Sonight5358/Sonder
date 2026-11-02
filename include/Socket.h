@@ -1,26 +1,24 @@
 #pragma once
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <winsock2.h>
-#include <windows.h>
-
 #include <string>
-#include <ws2tcpip.h>
+
+#include "SelectPlatform.h"
 #include "SocketError.h"
 
 class Socket
 {
 private: 
-	SOCKET SocketDesc = INVALID_SOCKET;
+	SocketP SocketDesc = InvalidSocket;
 
 public:
-	Socket(int af = AF_INET, int type = SOCK_STREAM, int protocol = 0);
+	// New TCP/IPv4 socket
+	Socket();
 
-	// Constructor for already existing socket descriptor
-	Socket(SOCKET createsock);
+	// New socket with params
+	Socket(int af, int type, int protocol = 0);
+
+	// Ownership of an existing descriptor
+	explicit Socket(SocketP createsock);
 
 	// Move constructor
 	Socket(Socket&& other) noexcept;
@@ -36,6 +34,9 @@ public:
 
 	// Destructor
 	~Socket();
+
+	// Options
+	void SetSocketOption(int level, int optname, int optvalue);
 
 	// Bind Ip and port with this exact socket (IPv4)
 	void Bind(const sockaddr_in& name); // Struct with server info

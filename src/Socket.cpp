@@ -1,24 +1,26 @@
 #include "Socket.h"
 
+Socket::Socket() : Socket(AF_INET, SOCK_STREAM, 0) {}
+
 Socket::Socket(int af, int type, int protocol)
 {
 	SocketDesc = socket(af, type, protocol);
 
 	// If socket was not created
-	if (SocketDesc == INVALID_SOCKET)
+	if (SocketDesc == InvalidSocket)
 	{
-		throw SocketError(WSAGetLastError());
+		throw SocketError(LastSocketError());
 	}
 }
 
 // Constructor for already existing socket descriptor
-Socket::Socket(SOCKET createsock) : SocketDesc(createsock) {}
+Socket::Socket(SocketP createsock) : SocketDesc(createsock) {}
 
 // Move constructor
 Socket::Socket(Socket&& other) noexcept
 {	
 	SocketDesc = other.SocketDesc;
-	other.SocketDesc = INVALID_SOCKET;
+	other.SocketDesc = InvalidSocket;
 }
 
 // Move asingment
@@ -26,13 +28,13 @@ Socket& Socket::operator = (Socket&& other) noexcept
 {
 	if (this != &other)
 	{
-		if (SocketDesc != INVALID_SOCKET)
+		if (SocketDesc != InvalidSocket)
 		{
-			closesocket(SocketDesc);
+			CloseSock(SocketDesc);
 		}
 
 		SocketDesc = other.SocketDesc;
-		other.SocketDesc = INVALID_SOCKET;
+		other.SocketDesc = InvalidSocket;
 	}
 
 	return *this;
@@ -41,9 +43,18 @@ Socket& Socket::operator = (Socket&& other) noexcept
 // Destructor
 Socket::~Socket()
 {	
-	if (SocketDesc != INVALID_SOCKET)
+	if (SocketDesc != InvalidSocket)
 	{
-		closesocket(SocketDesc);
+		CloseSock(SocketDesc);
+	}
+}
+
+// Options
+void Socket::SetSocketOption(int level, int optname, int optvalue)
+{
+	if (setsockopt(SocketDesc, level, optname, reinterpret_cast<const char*>(&optvalue), sizeof(optvalue)) == SocketFailed)
+	{
+		throw SocketError(LastSocketError());
 	}
 }
 
@@ -51,19 +62,19 @@ Socket::~Socket()
 void Socket::Bind(const sockaddr_in& name) // Struct with server info
 {
 	// If binding failed
-	if (bind(SocketDesc, reinterpret_cast<const sockaddr*>(&name), sizeof(name)) == SOCKET_ERROR)
+	if (bind(SocketDesc, reinterpret_cast<const sockaddr*>(&name), sizeof(name)) == SocketFailed)
 	{
-		throw SocketError(WSAGetLastError());
+		throw SocketError(LastSocketError());
 	}
 }
 
 // Bind Ip and port with this exact socket (IPv6)
 void Socket::Bind(const sockaddr_in6& name) // Struct with server info
-{
+{	
 	// If binding failed
-	if (bind(SocketDesc, reinterpret_cast<const sockaddr*>(&name), sizeof(name)) == SOCKET_ERROR)
+	if (bind(SocketDesc, reinterpret_cast<const sockaddr*>(&name), sizeof(name)) == SocketFailed)
 	{
-		throw SocketError(WSAGetLastError());
+		throw SocketError(LastSocketError());
 	}
 }
 
@@ -71,26 +82,26 @@ void Socket::Bind(const sockaddr_in6& name) // Struct with server info
 void Socket::Listen(int backlog)
 {
 	// If listening failed
-	if (listen(SocketDesc, backlog) == SOCKET_ERROR) // Socket descriptor, max length of pending connection queue)
+	if (listen(SocketDesc, backlog) == SocketFailed) // Socket descriptor, max length of pending connection queue)
 	{
-		throw SocketError(WSAGetLastError());
+		throw SocketError(LastSocketError());
 	}
 }
 
 // Accept (IPv4)
 Socket Socket::Accept(sockaddr_in& name)
 {
-	int addrlen = sizeof(name);
+	SocketPLen addrlen = sizeof(name);
 
 	// New socket class
-	SOCKET newsock = INVALID_SOCKET;
+	SocketP newsock = InvalidSocket;
 
 	newsock = accept(SocketDesc, reinterpret_cast<sockaddr*>(&name), &addrlen);
 
 	// If not accepted
-	if (newsock == INVALID_SOCKET)
+	if (newsock == InvalidSocket)
 	{
-		throw SocketError(WSAGetLastError());
+		throw SocketError(LastSocketError());
 	}
 
 	/*Socket sock(newsock);
@@ -103,17 +114,17 @@ Socket Socket::Accept(sockaddr_in& name)
 // Accept (IPv6)
 Socket Socket::Accept(sockaddr_in6& name)
 {
-	int addrlen = sizeof(name);
+	SocketPLen addrlen = sizeof(name);
 
 	// New socket class
-	SOCKET newsock = INVALID_SOCKET;
+	SocketP newsock = InvalidSocket;
 
 	newsock = accept(SocketDesc, reinterpret_cast<sockaddr*>(&name), &addrlen);
 
 	// If not accepted
-	if (newsock == INVALID_SOCKET)
+	if (newsock == InvalidSocket)
 	{
-		throw SocketError(WSAGetLastError());
+		throw SocketError(LastSocketError());
 	}
 
 	/*Socket sock(newsock);
@@ -126,9 +137,9 @@ Socket Socket::Accept(sockaddr_in6& name)
 void Socket::Connect(const sockaddr_in& name)
 {
 	// If connection failed
-	if (connect(SocketDesc, reinterpret_cast<const sockaddr*>(&name), sizeof(name)) == SOCKET_ERROR)
+	if (connect(SocketDesc, reinterpret_cast<const sockaddr*>(&name), sizeof(name)) == SocketFailed)
 	{
-		throw SocketError(WSAGetLastError());
+		throw SocketError(LastSocketError());
 	}
 }
 
@@ -136,9 +147,9 @@ void Socket::Connect(const sockaddr_in& name)
 void Socket::Connect(const sockaddr_in6& name)
 {
 	// If connection failed
-	if (connect(SocketDesc, reinterpret_cast<const sockaddr*>(&name), sizeof(name)) == SOCKET_ERROR)
+	if (connect(SocketDesc, reinterpret_cast<const sockaddr*>(&name), sizeof(name)) == SocketFailed)
 	{
-		throw SocketError(WSAGetLastError());
+		throw SocketError(LastSocketError());
 	}
 }
 
@@ -148,9 +159,9 @@ int Socket::Shutdown(int how)
 	int Result = shutdown(SocketDesc, how);
 
 	// If shutdown failed
-	if (Result == SOCKET_ERROR)
+	if (Result == SocketFailed)
 	{
-		throw SocketError(WSAGetLastError());
+		throw SocketError(LastSocketError());
 	}
 
 	return Result;
@@ -166,9 +177,9 @@ bool Socket::RecvAll(char* buf, int len)
 		int Result = recv(SocketDesc, buf + received, len - received, 0);
 
 		// If receive failed
-		if (Result == SOCKET_ERROR)
+		if (Result == SocketFailed)
 		{
-			throw SocketError(WSAGetLastError());
+			throw SocketError(LastSocketError());
 		}
 
 		if (Result == 0)
@@ -189,12 +200,12 @@ void Socket::SendAll(const char* buf, int len)
 
 	while (sent < len)
 	{
-		int sentBytes = send(SocketDesc, buf + sent, len - sent, 0);
+		int sentBytes = send(SocketDesc, buf + sent, len - sent, SendFlags);
 
 		// If cant send
-		if (sentBytes == SOCKET_ERROR)
+		if (sentBytes == SocketFailed)
 		{
-			throw SocketError(WSAGetLastError());
+			throw SocketError(LastSocketError());
 		}
 
 		sent += sentBytes;

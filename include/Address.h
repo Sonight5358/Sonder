@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ws2tcpip.h>
+#include "SelectPlatform.h"
 #include "SocketError.h"
 #include <cstdint>
 #include <string>
@@ -19,7 +19,7 @@ inline sockaddr_in MakeAddress(const std::string& ip, uint16_t port)
 	// If converting failed
 	if (Result == -1)
 	{
-		throw SocketError(WSAGetLastError());
+		throw SocketError(LastSocketError());
 	}
 
 	else if (Result == 0)

@@ -23,7 +23,7 @@ void ChatClient::sendMessage(const QString &message)
     {
         if (message == "/exit")
         {
-            clientSocket.Shutdown(SD_BOTH);
+            clientSocket.Shutdown(ShutBoth);
             return;
         }
 
@@ -32,7 +32,7 @@ void ChatClient::sendMessage(const QString &message)
 
     catch (const SocketError& e)
     {
-        if (e.code() == WSAESHUTDOWN)
+        if (e.code() == ConnShutdown)
         {
             qWarning() << "Connection closed";
         }
@@ -53,7 +53,7 @@ ChatClient::~ChatClient()
 {
     try
     {
-        clientSocket.Shutdown(SD_BOTH);
+        clientSocket.Shutdown(ShutBoth);
     }
 
     catch (...)
@@ -108,11 +108,11 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
 
 	catch (const SocketError& e)
 	{
-		if (e.code() == WSAESHUTDOWN)
+		if (e.code() == ConnShutdown)
 		{
 			qWarning() << "Disconnected";
 		}
-		else if (e.code() == WSAECONNRESET)
+		else if (e.code() == ECONNRESET)
 		{
 			qWarning() << "Peer disconnected";
 		}

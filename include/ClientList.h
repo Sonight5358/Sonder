@@ -2,6 +2,7 @@
 
 #include <mutex>
 #include <vector>
+#include <deque>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -13,9 +14,11 @@ class ClientList
 private:
 	std::vector<std::shared_ptr<Connection>> list;
 	std::mutex mutex;
+	std::deque<std::string> history;
+	size_t maxMessageC = 50;
 
 public:
-	void Add(std::shared_ptr<Connection> client);
+	std::deque<std::string> Add(std::shared_ptr<Connection> client);
 
 	void Broadcast(const std::shared_ptr<Connection>& sender, std::string_view text);
 

@@ -4,10 +4,12 @@
 #include <iostream>
 #include <algorithm>
 
-void ClientList::Add(std::shared_ptr<Connection> client)
+std::deque<std::string> ClientList::Add(std::shared_ptr<Connection> client)
 {
 	std::lock_guard<std::mutex> lock(mutex);
 	list.push_back(std::move(client));
+
+	return history;
 }
 
 void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::string_view text)
@@ -18,6 +20,12 @@ void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::strin
 		std::lock_guard<std::mutex> lock(mutex);
 
 		snapshot = list;
+
+		if (history.size() >= maxMessageC)
+		{
+			history.pop_front();
+		}
+		history.emplace_back(text);
 	}
 
 	for (const std::shared_ptr<Connection>& x : snapshot)

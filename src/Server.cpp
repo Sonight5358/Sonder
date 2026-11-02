@@ -32,7 +32,14 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 			return;
 		}
 
-		list.Add(Client);
+		// Copy of history from ClientList
+		std::deque<std::string> hist = list.Add(Client);
+
+		for (const std::string& x : hist)
+		{
+			Client->Send(x);
+		}
+
 		std::cout << *name << " joined" << '\n';
 
 		while (true)

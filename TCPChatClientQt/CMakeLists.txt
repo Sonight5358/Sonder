@@ -4,7 +4,7 @@ project(Sonder VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick Multimedia Lottie ShaderTools)
+find_package(Qt6 REQUIRED COMPONENTS Quick Widgets Multimedia Lottie ShaderTools)
 
 qt_standard_project_setup(REQUIRES 6.10)
 
@@ -33,7 +33,7 @@ qt_add_qml_module(Sonder
         components/RegistrationButton.qml
         components/Cursor.qml
 
-    SOURCES chatclient.h chatclient.cpp clipboard.h clipboard.cpp
+    SOURCES chatclient.h chatclient.cpp clipboard.h clipboard.cpp notification.h notification.cpp
 
     RESOURCES
         assets/SomethingInteresting.json
@@ -44,6 +44,7 @@ qt_add_qml_module(Sonder
         assets/icons/scan-text.svg
         assets/icons/scissors.svg
         assets/icons/trash.svg
+        assets/sonder.ico
 )
 
 qt_add_shaders(Sonder "app_shaders"
@@ -66,6 +67,7 @@ set_target_properties(Sonder PROPERTIES
 target_link_libraries(Sonder
     PRIVATE
         Qt6::Quick
+        Qt6::Widgets
         Qt::Lottie
         Qt6::Multimedia
         dwmapi

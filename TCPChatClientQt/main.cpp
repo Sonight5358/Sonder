@@ -1,4 +1,4 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
 #include <QSGRendererInterface>
@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
     QQuickWindow::setDefaultAlphaBuffer(true);
 
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
     QObject::connect(
@@ -34,12 +34,25 @@ int main(int argc, char *argv[])
     HWND hwnd = reinterpret_cast<HWND>(window->winId());
     int backdrop = DWMSBT_TRANSIENTWINDOW;
     hr = DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &backdrop, sizeof(backdrop));
-    qWarning() << hr;
+    // qWarning() << hr;
 
     HRESULT hrBlack;
     BOOL dark = TRUE;
     hrBlack = DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &dark, sizeof(dark));
-    qWarning() << hrBlack;
+    // qWarning() << hrBlack;
 
-    return QGuiApplication::exec();
+
+    BOOL cloak = TRUE;
+    DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
+
+    QObject::connect(window, &QQuickWindow::frameSwapped, window,
+                    [hwnd]()
+                    {
+                        BOOL cloak = FALSE;
+                        DwmSetWindowAttribute(hwnd, DWMWA_CLOAK, &cloak, sizeof(cloak));
+                    },
+                    Qt::SingleShotConnection);
+    window->show();
+
+    return QApplication::exec();
 }

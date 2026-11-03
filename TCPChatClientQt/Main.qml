@@ -12,7 +12,7 @@ ApplicationWindow{
     minimumWidth: 1280
     minimumHeight: 720
 
-    visible: true
+    visible: false
     color: "transparent"
     title: "Sonder"
     font: appFont
@@ -46,6 +46,8 @@ ApplicationWindow{
     property font appFont: Qt.font({family: manrope.name, weight: 600, pixelSize: 22})
     property font appTextFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 18})
     property font appSmallFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 14})
+    property bool notified: false
+
     property Gradient defaultGrad: Gradient{
         GradientStop{
             position: 0.0
@@ -73,6 +75,13 @@ ApplicationWindow{
 
         chatClient.connectToServer("127.0.0.1", nickname)
         messageSendArea.focusFieldChat()
+    }
+
+    onActiveChanged: {
+        if (appWindow.active)
+        {
+            appWindow.notified = false
+        }
     }
 
     Component.onCompleted: {
@@ -304,16 +313,40 @@ ApplicationWindow{
     ChatClient{
         id: chatClient
     }
+
     Connections{
         target: chatClient
         function onMessageReceived(message) {
             rectChat.addMessage(message, false)
+
+            if ((!appWindow.active) && appWindow.notified === false)
+            {
+                appWindow.alert(0)
+
+                const dvoet = message.indexOf(": ")
+                const nick = message.substring(0, dvoet)
+                const text = message.substring(dvoet + 2)
+
+                Notification.notify(nick, text)
+
+                appWindow.notified = true
+            }
         }
         function onConnected() {
             appWindow.connectionStatus = "Connected"
         }
         function onDisconnected() {
             appWindow.connectionStatus = "Disconnected"
+        }
+    }
+
+    Connections{
+        target: Notification
+
+        function onTrayIconClicked() {
+            appWindow.show()
+            appWindow.raise()
+            appWindow.requestActivate()
         }
     }
 }

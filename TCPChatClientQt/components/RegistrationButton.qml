@@ -17,7 +17,7 @@ Button{
 
     width: 300
     height: actualButton
-    opacity: enabled ? 0.9 : 0.45
+    opacity: enabled ? (root.hovered? 1 : 0.85) : 0.45
 
     Behavior on opacity{
         NumberAnimation{

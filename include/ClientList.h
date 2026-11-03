@@ -15,7 +15,7 @@ private:
 	std::vector<std::shared_ptr<Connection>> list;
 	std::mutex mutex;
 	std::deque<std::string> history;
-	size_t maxMessageC = 50;
+	size_t maxMessageC = 100;
 
 public:
 	std::deque<std::string> Add(std::shared_ptr<Connection> client);

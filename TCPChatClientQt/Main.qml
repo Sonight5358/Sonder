@@ -51,21 +51,21 @@ ApplicationWindow{
     property Gradient defaultGrad: Gradient{
         GradientStop{
             position: 0.0
-            color: Qt.alpha("#2E2E2E", opacityPanels)
+            color: Qt.alpha("#2E2E2E", appWindow.opacityPanels)
         }
         GradientStop{
             position: 1.0
-            color: Qt.alpha("#0C0C0C", opacityPanels)
+            color: Qt.alpha("#0C0C0C", appWindow.opacityPanels)
         }
     }
     property Gradient defaultGradInverted: Gradient{
         GradientStop{
             position: 0.0
-            color: Qt.alpha("#0C0C0C", opacityPanels)
+            color: Qt.alpha("#0C0C0C", appWindow.opacityPanels)
         }
         GradientStop{
             position: 1.0
-            color: Qt.alpha("#2E2E2E", opacityPanels)
+            color: Qt.alpha("#2E2E2E", appWindow.opacityPanels)
         }
     }
 
@@ -108,13 +108,13 @@ ApplicationWindow{
         id: rectChat
 
         anchors.top: parent.top
-        anchors.topMargin: marginEl
+        anchors.topMargin: appWindow.marginEl
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: marginEl
+        anchors.bottomMargin: appWindow.marginEl
         anchors.left: rectLeft.right
         anchors.leftMargin: marginChatsField
         anchors.right: parent.right
-        anchors.rightMargin: marginEl
+        anchors.rightMargin: appWindow.marginEl
 
         panelsColor: appWindow.panelsColor
         mainColor: appWindow.mainColor
@@ -136,11 +136,11 @@ ApplicationWindow{
         startupDuration: appWindow.startupDuration
 
         transform: Translate{
-            x: isAppShown ? 0 : 80
+            x: appWindow.isAppShown ? 0 : 80
 
             Behavior on x{
                 NumberAnimation{
-                    duration: startupDuration
+                    duration: appWindow.startupDuration
                     easing.type: Easing.OutCubic
                 }
             }
@@ -152,11 +152,11 @@ ApplicationWindow{
         id: rectLeft
 
         anchors.left: parent.left
-        anchors.leftMargin: marginEl
+        anchors.leftMargin: appWindow.marginEl
         anchors.top: parent.top
-        anchors.topMargin: marginEl
+        anchors.topMargin: appWindow.marginEl
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: marginEl
+        anchors.bottomMargin: appWindow.marginEl
 
         widthPanel: 300
         panelsColor: appWindow.panelsColor
@@ -174,11 +174,11 @@ ApplicationWindow{
         width: widthPanel
 
         transform: Translate{
-            x: isAppShown ? 0 : -(rectLeft.width + marginEl)
+            x: appWindow.isAppShown ? 0 : -(rectLeft.width + appWindow.marginEl)
 
             Behavior on x{
                 NumberAnimation{
-                    duration:  startupDuration
+                    duration:  appWindow.startupDuration
                     easing.type: Easing.OutCubic
                 }
             }
@@ -216,11 +216,11 @@ ApplicationWindow{
         startupDuration: appWindow.startupDuration
 
         transform: Translate{
-            y: isAppShown ? 0 : (messageSendArea.height * 2 + marginEl)
+            y: appWindow.isAppShown ? 0 : (messageSendArea.height * 2 + appWindow.marginEl)
 
             Behavior on y{
                 NumberAnimation{
-                    duration: startupDuration
+                    duration: appWindow.startupDuration
                     easing.type: Easing.OutCubic
                 }
             }
@@ -270,11 +270,11 @@ ApplicationWindow{
         startupDuration: appWindow.startupDuration
 
         transform: Translate{
-            y: isAppShown ? 0 : -(chatInformation.height * 2 + marginEl)
+            y: appWindow.isAppShown ? 0 : -(chatInformation.height * 2 + appWindow.marginEl)
 
             Behavior on y{
                 NumberAnimation{
-                    duration: startupDuration
+                    duration: appWindow.startupDuration
                     easing.type: Easing.OutCubic
                 }
             }

@@ -1,0 +1,10 @@
+# Git
+.git
+
+# IDE
+.vs/
+.idea/
+
+# Build dirs
+build/
+out/

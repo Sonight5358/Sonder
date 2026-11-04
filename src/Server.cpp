@@ -22,13 +22,13 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 
 		if (!name)
 		{
-			std::cout << "No name" << '\n';
+			std::cerr << "No name" << '\n';
 			return;
 		}
 
 		if (name->length() > MaxNameLen || name->empty())
 		{
-			std::cout << "Invalid name" << '\n';
+			std::cerr << "Invalid name" << '\n';
 			return;
 		}
 
@@ -75,13 +75,13 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 		}
 		else
 		{
-			std::cout << e.what() << '\n';
+			std::cerr << e.what() << '\n';
 		}
 	}
 
 	catch (const std::exception& e)
 	{
-		std::cout << "Error: " << e.what() << '\n';
+		std::cerr << "Error: " << e.what() << '\n';
 	}
 
 	list.Remove(Client);
@@ -89,6 +89,8 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 
 int main()
 {	
+	std::cout << std::unitbuf;
+
 	try
 	{
 		// Winsock init
@@ -104,7 +106,7 @@ int main()
 		}
 		catch (const SocketError& e)
 		{
-			std::cout << "Option setting failed: " << e.what() << '\n';
+			std::cerr << "Option setting failed: " << e.what() << '\n';
 		}
 #endif
 
@@ -165,13 +167,13 @@ int main()
 
 			catch (const std::exception& e)
 			{
-				std::cout << "Error: " << e.what() << '\n';
+				std::cerr << "Error: " << e.what() << '\n';
 			}
 		}
 	}
 	catch (const std::exception& e)
 	{
-		std::cout << "Server start failed: " << e.what() << '\n';
+		std::cerr << "Server start failed: " << e.what() << '\n';
 		return 1;
 	}
 

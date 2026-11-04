@@ -29,7 +29,7 @@ Item{
 
     Behavior on opacity{
         NumberAnimation{
-            duration:  startupDuration
+            duration: startupDuration
             easing.type: Easing.OutCubic
         }
     }

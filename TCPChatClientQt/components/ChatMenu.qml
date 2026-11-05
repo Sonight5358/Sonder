@@ -17,6 +17,8 @@ Menu{
     property font appSmallFont
     property real textShifting: 0
 
+    property string textSelected
+
     implicitWidth: 250
 
     topPadding: marginChatsField

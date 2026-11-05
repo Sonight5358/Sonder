@@ -171,6 +171,22 @@ Item{
 
                 wrapMode: TextEdit.Wrap
 
+                selectionColor: selectedText.length > 0 ? textColor : "transparent"
+                selectedTextColor: selectedText.length > 0 ? "#171717" : textColor
+
+                Behavior on selectionColor{
+                    ColorAnimation {
+                        duration: 150
+                        easing.type: Easing.InCubic
+                    }
+                }
+                Behavior on selectedTextColor{
+                    ColorAnimation {
+                        duration: 150
+                        easing.type: Easing.InCubic
+                    }
+                }
+
                 // Cursor
                 cursorDelegate: Item{}
                 Cursor{

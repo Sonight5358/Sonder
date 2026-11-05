@@ -73,7 +73,7 @@ ApplicationWindow{
         entryScreen.isEntryShowed = false
         appWindow.isAppShown = true
 
-        chatClient.connectToServer("127.0.0.1", nickname)
+        chatClient.connectToServer("92.114.54.182", nickname)
         messageSendArea.focusFieldChat()
     }
 

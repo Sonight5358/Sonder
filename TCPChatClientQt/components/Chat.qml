@@ -60,13 +60,30 @@ Item{
         appTextFont: root.appTextFont
         appSmallFont: root.appSmallFont
 
-        implicitWidth: 150
+        implicitWidth: 180
 
-        onClosed: root.menuIndex = -1
+        onClosed: {
+            const item = entireChat.itemAtIndex(root.menuIndex)
+            if (item){
+                item.unselectFade()
+            }
+
+
+            root.menuIndex = -1
+            chatMenu.textSelected = ""
+        }
 
         Action{
-            text: "Copy"
-            onTriggered: Clipboard.setText(messageModel.get(root.menuIndex).messageText)
+            text: chatMenu.textSelected !== "" ? "Copy selection" : "Copy"
+            onTriggered: {
+                if (chatMenu.textSelected.length > 0){
+                    Clipboard.setText(chatMenu.textSelected)
+                }
+                else{
+                    Clipboard.setText(messageModel.get(root.menuIndex).messageText)
+                }
+            }
+
             property string iconName: "copy"
         }
         Action{
@@ -191,9 +208,14 @@ Item{
                 required property string messageText
                 required property bool isMine
                 required property int index
+                property alias messageItem: message
 
                 readonly property bool highlighted: hoverHandler.hovered
                                                     || (chatMenu.visible && root.menuIndex === index)
+
+                function unselectFade(){
+                    unselectAnim.start()
+                }
 
                 height: delegateBottom.height
                 width: ListView.view.width
@@ -220,6 +242,7 @@ Item{
                         onTapped: {
                             root.menuIndex = delegateRoot.index
                             chatMenu.popup()
+                            chatMenu.textSelected = message.selectedText
                         }
                     }
 
@@ -242,18 +265,68 @@ Item{
                         }
                     }
 
-                    Text{
-                    id: message
+                    TextEdit{
+                        id: message
 
-                    anchors.centerIn: parent
+                        anchors.centerIn: parent
 
-                    width: Math.min(implicitWidth, delegateRoot.width * 0.7 - 24)
+                        width: Math.min(implicitWidth, delegateRoot.width * 0.7 - 24)
 
-                    text: delegateRoot.messageText
-                    color: textColor
-                    font: appTextFont
+                        readOnly: true
+                        selectByKeyboard: true
+                        selectByMouse: true
 
-                    wrapMode: Text.Wrap
+                        selectionColor: selectedText.length > 0 ? textColor : "transparent"
+                        selectedTextColor: selectedText.length > 0 ? "#171717" : textColor
+
+                        text: delegateRoot.messageText
+                        color: textColor
+                        font: appTextFont
+
+                        wrapMode: Text.Wrap
+
+                        Behavior on selectionColor{
+                            ColorAnimation {
+                                duration: 150
+                                easing.type: Easing.InCubic
+                            }
+                        }
+                        Behavior on selectedTextColor{
+                            ColorAnimation {
+                                duration: 150
+                                easing.type: Easing.InCubic
+                            }
+                        }
+                    }
+
+                    // temporary disabled
+                    SequentialAnimation{
+                        id: unselectAnim
+
+                        // ParallelAnimation{
+                        //     ColorAnimation{
+                        //         target: message
+                        //         property: "selectionColor"
+                        //         to: "transparent"
+                        //         duration: 150
+                        //         easing.type: Easing.InOutCubic
+                        //     }
+                        //     ColorAnimation{
+                        //         target: message
+                        //         property: "selectedTextColor"
+                        //         to: textColor
+                        //         duration: 150
+                        //         easing.type: Easing.InOutCubic
+                        //     }
+                        // }
+
+                        ScriptAction{
+                            script: {
+                                message.deselect()
+                                // message.selectionColor = Qt.binding(() => message.selectedText.length > 0 ? textColor : "transparent")
+                                // message.selectedTextColor = Qt.binding(() => message.selectedText.length > 0 ? "#171717" : textColor)
+                            }
+                        }
                     }
                 }
             }

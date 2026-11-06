@@ -27,7 +27,7 @@ void ChatClient::sendMessage(const QString &message)
             return;
         }
 
-        SendPacket(clientSocket, message.toStdString());
+        SendPacket(clientSocket, MessageType::Chat, message.toStdString());
     }
 
     catch (const SocketError& e)
@@ -84,7 +84,7 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
 			std::chrono::seconds(1)
 		);
 
-        SendPacket(clientSocket, nickname);
+        SendPacket(clientSocket, MessageType::Handshake, nickname);
 
 		isConnected = true;
 		emit connected();
@@ -92,16 +92,21 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
         
 		while (true)
 		{
-			std::optional<std::string> message = RecvPacket(clientSocket);
+			std::optional<Packet> message = RecvPacket(clientSocket);
 
 			if (!message)
 			{
 				qWarning() << "Connection closed";
 				break;
 			}
+            if (message->type != MessageType::Chat)
+            {
+                qWarning() << "Wrong message type";
+                continue;
+            }
 			else
 			{
-				emit messageReceived(QString::fromStdString(*message));
+				emit messageReceived(QString::fromStdString(message->content));
 			}
 		}
 	}

@@ -20,10 +20,10 @@ public:
 	void Send(std::string_view message)
 	{	
 		std::lock_guard<std::mutex> lock(sendmtx);
-		SendPacket(socket, message);
+		SendPacket(socket, MessageType::Chat, message);
 	}
 
-	std::optional<std::string> Recv()
+	std::optional<Packet> Recv()
 	{
 		return RecvPacket(socket);
 	}

@@ -16,7 +16,7 @@ void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 	{
 		while (true)
 		{
-			std::optional<std::string> message = RecvPacket(ConnectionSocket);
+			std::optional<Packet> message = RecvPacket(ConnectionSocket);
 
 			if (!message)
 			{
@@ -24,8 +24,14 @@ void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 				break;
 			}
 			else
-			{
-				std::cout << "Server: " << *message << '\n';
+			{	
+				if (message->type != MessageType::Chat)
+				{
+					std::cout << "Wrong message type" << '\n';
+					continue;
+				}
+
+				std::cout << "Server: " << message->content << '\n';
 			}
 		}
 	}
@@ -95,7 +101,7 @@ int main()
 	try
 	{
 		// Send message from client
-		SendPacket(ConnectionSocket, nickname);
+		SendPacket(ConnectionSocket, MessageType::Handshake, nickname);
 	}
 
 	catch (const SocketError& e)
@@ -144,7 +150,7 @@ int main()
 		try
 		{
 			// Send message from client
-			SendPacket(ConnectionSocket, line);
+			SendPacket(ConnectionSocket, MessageType::Chat, line);
 		}
 
 		catch (const SocketError& e)

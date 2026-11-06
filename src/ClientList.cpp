@@ -12,7 +12,7 @@ std::deque<std::string> ClientList::Add(std::shared_ptr<Connection> client)
 	return history;
 }
 
-void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::string_view text)
+void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::string_view message)
 {	
 	std::vector<std::shared_ptr<Connection>> snapshot;
 
@@ -25,7 +25,7 @@ void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::strin
 		{
 			history.pop_front();
 		}
-		history.emplace_back(text);
+		history.emplace_back(message);
 	}
 
 	for (const std::shared_ptr<Connection>& x : snapshot)
@@ -34,7 +34,7 @@ void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::strin
 		{
 			try
 			{
-				x->Send(text);
+				x->Send(message);
 			}
 
 			catch (const std::exception& e)

@@ -9,6 +9,7 @@
 #include "Connection.h"
 #include "ClientList.h"
 #include "Address.h"
+#include "Type.h"
 
 // Receive message from client (blocking fuction) in a separate thread
 void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
@@ -18,11 +19,19 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 
 	try
 	{	
-		name = Client->Recv();
+		std::optional<Packet> packetName = Client->Recv();
 
-		if (!name)
+		if (!packetName)
 		{
 			std::cerr << "No name" << '\n';
+			return;
+		}
+
+		name = packetName->content;
+
+		if (packetName->type != MessageType::Handshake)
+		{
+			std::cerr << "Wrong name type" << '\n';
 			return;
 		}
 
@@ -44,19 +53,22 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 
 		while (true)
 		{	
-			std::optional<std::string> message = Client->Recv();
+			std::optional<Packet> message = Client->Recv();
 
 			if (!message)
 			{
 				std::cout << *name << " closed connection" << '\n';
 				break;
 			}
-			else
+			if (message->type != MessageType::Chat)
 			{
-				std::cout << *name << ": " << *message << '\n';
+				std::cerr << "Wrong message type" << '\n';
+				continue;
 			}
+				
+			std::cout << *name << ": " << message->content << '\n';
 
-			list.Broadcast(Client, *name + ": " + *message);
+			list.Broadcast(Client, *name + ": " + message->content);
 		}
 	}
 

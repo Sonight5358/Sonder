@@ -9,8 +9,8 @@ ApplicationWindow{
 
     width: 1280
     height: 720
-    minimumWidth: 1280
-    minimumHeight: 720
+    minimumWidth: 900
+    minimumHeight: 500
 
     visible: false
     color: "transparent"
@@ -73,7 +73,7 @@ ApplicationWindow{
         entryScreen.isEntryShowed = false
         appWindow.isAppShown = true
 
-        chatClient.connectToServer("92.114.54.182", nickname)
+        chatClient.connectToServer(/*"92.114.54.182"*/ "127.0.0.1", nickname)
         messageSendArea.focusFieldChat()
     }
 

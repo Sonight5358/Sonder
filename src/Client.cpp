@@ -25,13 +25,21 @@ void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 			}
 			else
 			{	
-				if (message->type != MessageType::Chat)
+				if (message->type != MessageType::STC && message->type != MessageType::History)
 				{
 					std::cout << "Wrong message type" << '\n';
 					continue;
 				}
 
-				std::cout << "Server: " << message->content << '\n';
+				std::optional<NickNText> nickNtext = DecodeText(message->content);
+
+				if (!nickNtext)
+				{
+					std::cout << "Malformed packet" << '\n';
+					continue;
+				}
+
+				std::cout << nickNtext->nick << ": " << nickNtext->text << '\n';
 			}
 		}
 	}
@@ -150,7 +158,7 @@ int main()
 		try
 		{
 			// Send message from client
-			SendPacket(ConnectionSocket, MessageType::Chat, line);
+			SendPacket(ConnectionSocket, MessageType::CTS, line);
 		}
 
 		catch (const SocketError& e)

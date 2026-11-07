@@ -24,6 +24,8 @@ Item{
     property int menuIndex: -1
     property bool isAppShown
     property int startupDuration
+    readonly property var nickPalette: ["#8B7FD6", "#A47FCF", "#9A8FC7", "#6F8FE0",
+        "#5A9BD5", "#4FA3A5", "#5FAE84", "#7FA866"]
 
     opacity: isAppShown ? 1 : 0
 
@@ -38,13 +40,23 @@ Item{
         id: messageModel
     }
 
-    function addMessage(text, mine){
-        messageModel.insert(0, {messageText: text, isMine: mine})
+    function addMessage(sender, text, mine){
+        messageModel.insert(0, {nick: sender, messageText: text, isMine: mine})
     }
+
     function deleteMessage(i){
         if(i >= 0 && i < messageModel.count){
             messageModel.remove(i)
         }
+    }
+
+    function colorNick(nick){
+        let h = 0
+        for (let i = 0; i < nick.length; i++){
+            h = h * 31 + nick.charCodeAt(i) | 0
+        }
+        let ind = Math.abs(h) % root.nickPalette.length
+        return nickPalette[ind]
     }
 
     ChatMenu{
@@ -205,6 +217,9 @@ Item{
             delegate: Item{
                 id: delegateRoot
 
+                property double maxContentWidth: delegateRoot.width * 0.7 - 24
+
+                required property string nick
                 required property string messageText
                 required property bool isMine
                 required property int index
@@ -246,8 +261,8 @@ Item{
                         }
                     }
 
-                    width: message.width + 24
-                    height: message.implicitHeight + 16
+                    width: column.width + 24
+                    height: column.implicitHeight + 16
 
                     x: delegateRoot.isMine ? delegateRoot.width - width - 16 : 16
 
@@ -265,36 +280,58 @@ Item{
                         }
                     }
 
-                    TextEdit{
-                        id: message
+                    Column{
+                        id: column
 
-                        anchors.centerIn: parent
+                        anchors.top: parent.top
+                        anchors.topMargin: 8
+                        anchors.left: parent.left
+                        anchors.leftMargin: 12
 
-                        width: Math.min(implicitWidth, delegateRoot.width * 0.7 - 24)
+                        spacing: 4
 
-                        readOnly: true
-                        selectByKeyboard: true
-                        selectByMouse: true
+                        Text{
+                            id: nickname
 
-                        selectionColor: selectedText.length > 0 ? textColor : "transparent"
-                        selectedTextColor: selectedText.length > 0 ? "#171717" : textColor
+                            text: delegateRoot.nick
+                            font: root.appSmallFont
+                            color: root.colorNick(delegateRoot.nick)
 
-                        text: delegateRoot.messageText
-                        color: textColor
-                        font: appTextFont
+                            width: Math.min(implicitWidth, delegateRoot.maxContentWidth)
+                            elide: Text.ElideRight
 
-                        wrapMode: Text.Wrap
-
-                        Behavior on selectionColor{
-                            ColorAnimation {
-                                duration: 150
-                                easing.type: Easing.InCubic
-                            }
+                            visible: !delegateRoot.isMine
                         }
-                        Behavior on selectedTextColor{
-                            ColorAnimation {
-                                duration: 150
-                                easing.type: Easing.InCubic
+
+                        TextEdit{
+                            id: message
+
+                            width: Math.min(implicitWidth, delegateRoot.maxContentWidth)
+
+                            readOnly: true
+                            selectByKeyboard: true
+                            selectByMouse: true
+
+                            selectionColor: selectedText.length > 0 ? textColor : "transparent"
+                            selectedTextColor: selectedText.length > 0 ? "#171717" : textColor
+
+                            text: delegateRoot.messageText
+                            color: textColor
+                            font: appTextFont
+
+                            wrapMode: Text.Wrap
+
+                            Behavior on selectionColor{
+                                ColorAnimation {
+                                    duration: 150
+                                    easing.type: Easing.InCubic
+                                }
+                            }
+                            Behavior on selectedTextColor{
+                                ColorAnimation {
+                                    duration: 150
+                                    easing.type: Easing.InCubic
+                                }
                             }
                         }
                     }

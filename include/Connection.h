@@ -17,10 +17,10 @@ private:
 public:
 	explicit Connection(Socket&& sock) : socket(std::move(sock)) {}
 
-	void Send(std::string_view message)
+	void Send(std::string_view message, MessageType type)
 	{	
 		std::lock_guard<std::mutex> lock(sendmtx);
-		SendPacket(socket, MessageType::Chat, message);
+		SendPacket(socket, type, message);
 	}
 
 	std::optional<Packet> Recv()

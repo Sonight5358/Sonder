@@ -190,7 +190,7 @@ ApplicationWindow{
         id: messageSendArea
 
         onSendRequested: function(message){
-            rectChat.addMessage(message, true)
+            rectChat.addMessage(settings.nickname, message, true)
             chatClient.sendMessage(message)
         }
 
@@ -316,18 +316,14 @@ ApplicationWindow{
 
     Connections{
         target: chatClient
-        function onMessageReceived(message) {
-            rectChat.addMessage(message, false)
+        function onMessageReceived(sender, text, isHistory) {
+            rectChat.addMessage(sender, text, settings.nickname === sender)
 
-            if ((!appWindow.active) && appWindow.notified === false)
+            if ((!appWindow.active) && appWindow.notified === false && isHistory === false)
             {
                 appWindow.alert(0)
 
-                const dvoet = message.indexOf(": ")
-                const nick = message.substring(0, dvoet)
-                const text = message.substring(dvoet + 2)
-
-                Notification.notify(nick, text)
+                Notification.notify(sender, text)
 
                 appWindow.notified = true
             }

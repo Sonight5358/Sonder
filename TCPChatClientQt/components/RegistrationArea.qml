@@ -97,7 +97,7 @@ Item{
             background: null
 
             rightPadding: 10
-            maximumLength: 30
+            maximumLength: 25
 
             font: appTextFont
             color: textColor

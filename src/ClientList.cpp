@@ -4,7 +4,7 @@
 #include <iostream>
 #include <algorithm>
 
-std::deque<std::string> ClientList::Add(std::shared_ptr<Connection> client)
+std::deque<NickNText> ClientList::Add(std::shared_ptr<Connection> client)
 {
 	std::lock_guard<std::mutex> lock(mutex);
 	list.push_back(std::move(client));
@@ -12,9 +12,11 @@ std::deque<std::string> ClientList::Add(std::shared_ptr<Connection> client)
 	return history;
 }
 
-void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::string_view message)
+void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::string_view nick, std::string_view message)
 {	
 	std::vector<std::shared_ptr<Connection>> snapshot;
+
+	std::string encoded = EncodeText(nick, message);
 
 	{
 		std::lock_guard<std::mutex> lock(mutex);
@@ -25,7 +27,8 @@ void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::strin
 		{
 			history.pop_front();
 		}
-		history.emplace_back(message);
+
+		history.emplace_back(NickNText{ std::string(nick), std::string(message) });
 	}
 
 	for (const std::shared_ptr<Connection>& x : snapshot)
@@ -34,7 +37,7 @@ void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::strin
 		{
 			try
 			{
-				x->Send(message);
+				x->Send(encoded, MessageType::STC);
 			}
 
 			catch (const std::exception& e)

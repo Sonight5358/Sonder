@@ -27,7 +27,7 @@ void ChatClient::sendMessage(const QString &message)
             return;
         }
 
-        SendPacket(clientSocket, MessageType::Chat, message.toStdString());
+        SendPacket(clientSocket, MessageType::CTS, message.toStdString());
     }
 
     catch (const SocketError& e)
@@ -67,6 +67,16 @@ ChatClient::~ChatClient()
     }
 }
 
+void ChatClient::connectToServer(const QString &address, const QString &nickname)
+{
+    if (clientThread.joinable())
+    {
+        return;
+    }
+
+    clientThread = std::thread(&ChatClient::receiveLoop, this, address.toStdString(), nickname.toStdString()); // Info to loop
+}
+
 void ChatClient::receiveLoop(std::string address, std::string nickname)
 {
 	try
@@ -88,7 +98,6 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
 
 		isConnected = true;
 		emit connected();
-
         
 		while (true)
 		{
@@ -99,15 +108,21 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
 				qWarning() << "Connection closed";
 				break;
 			}
-            if (message->type != MessageType::Chat)
+            if (message->type != MessageType::STC && message->type != MessageType::History)
             {
                 qWarning() << "Wrong message type";
                 continue;
             }
-			else
-			{
-				emit messageReceived(QString::fromStdString(message->content));
-			}
+
+            std::optional<NickNText> nickNtext = DecodeText(message->content);
+
+            if (!nickNtext)
+            {
+                qWarning() << "Malformed packet";
+                continue;
+            }
+
+            emit messageReceived(QString::fromStdString(nickNtext->nick), QString::fromStdString(nickNtext->text), message->type == MessageType::History);
 		}
 	}
 
@@ -134,14 +149,4 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
 
 	isConnected = false;
 	emit disconnected();
-}
-
-void ChatClient::connectToServer(const QString &address, const QString &nickname)
-{
-    if (clientThread.joinable())
-    {
-        return;
-    }
-
-    clientThread = std::thread(&ChatClient::receiveLoop, this, address.toStdString(), nickname.toStdString());
 }

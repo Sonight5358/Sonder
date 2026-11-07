@@ -42,11 +42,12 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 		}
 
 		// Copy of history from ClientList
-		std::deque<std::string> hist = list.Add(Client);
+		std::deque<NickNText> hist = list.Add(Client);
 
-		for (const std::string& x : hist)
-		{
-			Client->Send(x);
+		for (const NickNText& x : hist)
+		{	
+			std::string encoded = EncodeText(x.nick, x.text);
+			Client->Send(encoded, MessageType::History);
 		}
 
 		std::cout << *name << " joined" << '\n';
@@ -60,7 +61,7 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 				std::cout << *name << " closed connection" << '\n';
 				break;
 			}
-			if (message->type != MessageType::Chat)
+			if (message->type != MessageType::CTS)
 			{
 				std::cerr << "Wrong message type" << '\n';
 				continue;
@@ -68,7 +69,7 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 				
 			std::cout << *name << ": " << message->content << '\n';
 
-			list.Broadcast(Client, *name + ": " + message->content);
+			list.Broadcast(Client, *name, message->content);
 		}
 	}
 

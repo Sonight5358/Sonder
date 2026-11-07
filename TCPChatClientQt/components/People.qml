@@ -57,6 +57,17 @@ Item{
                         easing.type: Easing.InOutQuad
                 }
             }
+
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+
+                text: "Coming soon..."
+                font: appFont
+                color: textColor
+
+                horizontalAlignment: Text.AlignHCenter
+            }
         }
     }
 }

@@ -28,10 +28,12 @@ qt_add_qml_module(Sonder
         components/Chat.qml
         components/People.qml
         components/ChatMenu.qml
-        components/EntryScreen.qml
         components/RegistrationArea.qml
         components/RegistrationButton.qml
         components/Cursor.qml
+        components/OverlayScreen.qml
+        components/EntryScreen.qml
+        components/UpdateScreen.qml
 
     SOURCES chatclient.h chatclient.cpp clipboard.h clipboard.cpp notification.h notification.cpp
 

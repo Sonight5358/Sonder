@@ -70,7 +70,7 @@ ApplicationWindow{
     }
 
     function enterApp(nickname){
-        entryScreen.isEntryShowed = false
+        entryScreen.isShowed = false
         appWindow.isAppShown = true
 
         chatClient.connectToServer(/*"92.114.54.182"*/ "127.0.0.1", nickname)
@@ -90,7 +90,7 @@ ApplicationWindow{
         }
 
         else{
-            entryScreen.isEntryShowed = true
+            entryScreen.isShowed = true
         }
     }
 
@@ -309,6 +309,29 @@ ApplicationWindow{
         }
     }
 
+    // Update screen
+    UpdateScreen{
+        id: updateScreen
+
+        anchors.fill: parent
+        anchors.margins: 100
+
+        panelsColor: appWindow.panelsColor
+        mainColor: appWindow.mainColor
+        textColor: appWindow.textColor
+        borderColor: appWindow.borderColor
+        opacityPanels: appWindow.opacityPanels
+        borderIdleOpacity: appWindow.borderIdleOpacity
+        opacityMenu: appWindow.opacityMenu
+        appSmallFont: appWindow.appSmallFont
+        appFont: appWindow.appFont
+        appTextFont: appWindow.appTextFont
+        defaultGrad: appWindow.defaultGrad
+        windowsRadius: appWindow.windowsRadius
+        marginChatsField: appWindow.marginChatsField
+        startupDuration: appWindow.startupDuration
+    }
+
 
     ChatClient{
         id: chatClient
@@ -333,6 +356,14 @@ ApplicationWindow{
         }
         function onDisconnected() {
             appWindow.connectionStatus = "Disconnected"
+        }
+        function onRejected(code, why){
+            if (code === 0)
+            {
+                appWindow.isAppShown = false
+                updateScreen.reason = why
+                updateScreen.isShowed = true
+            }
         }
     }
 

@@ -20,14 +20,14 @@ void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 
 			if (!message)
 			{
-				std::cout << "Connection closed" << '\n';
+				std::cerr << "Connection closed" << '\n';
 				break;
 			}
 			else
 			{	
 				if (message->type != MessageType::STC && message->type != MessageType::History)
 				{
-					std::cout << "Wrong message type" << '\n';
+					std::cerr << "Wrong message type" << '\n';
 					continue;
 				}
 
@@ -35,11 +35,11 @@ void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 
 				if (!nickNtext)
 				{
-					std::cout << "Malformed packet" << '\n';
+					std::cerr << "Malformed packet" << '\n';
 					continue;
 				}
 
-				std::cout << nickNtext->nick << ": " << nickNtext->text << '\n';
+				std::cerr << nickNtext->nick << ": " << nickNtext->text << '\n';
 			}
 		}
 	}
@@ -48,21 +48,21 @@ void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 	{
 		if (e.code() == ConnShutdown)
 		{
-			std::cout << "Disconnected" << '\n';
+			std::cerr << "Disconnected" << '\n';
 		}
 		else if (e.code() == ConnReset)
 		{
-			std::cout << "Peer disconnected" << '\n';
+			std::cerr << "Peer disconnected" << '\n';
 		}
 		else
 		{
-			std::cout << e.what() << '\n';
+			std::cerr << e.what() << '\n';
 		}
 	}
 
 	catch (const std::exception& e)
 	{
-		std::cout << "Error: " << e.what() << '\n';
+		std::cerr << "Error: " << e.what() << '\n';
 	}
 
 	connected = false;
@@ -91,7 +91,7 @@ int main()
 		}
 		else
 		{
-			std::cout << "Invalid nickname, try again" << '\n';
+			std::cerr << "Invalid nickname, try again" << '\n';
 		}
 	}
 
@@ -109,14 +109,34 @@ int main()
 	try
 	{
 		// Send message from client
-		SendPacket(ConnectionSocket, MessageType::Handshake, nickname);
+		SendPacket(ConnectionSocket, MessageType::Handshake, EncodeHandshake(protocolVer, nickname));
+
+		std::optional<Packet> packet = RecvPacket(ConnectionSocket);
+
+		if (!packet)
+		{
+			std::cerr << "No server respond" << '\n';
+			return 1;
+		}
+		
+		if (packet->type == MessageType::Reject)
+		{
+			std::cerr << packet->content << '\n';
+			return 1;
+		}
+
+		if (packet->type != MessageType::Welcome)
+		{
+			std::cerr << "Wrong packet type" << '\n';
+			return 1;
+		}
 	}
 
 	catch (const SocketError& e)
 	{
 		if (e.code() == ConnShutdown)
 		{
-			std::cout << "Connection closed" << '\n';
+			std::cerr << "Connection closed" << '\n';
 			// To be able to go the join after /exit
 		}
 
@@ -125,7 +145,7 @@ int main()
 
 	catch (const std::length_error&)
 	{
-		std::cout << "Message is too long" << '\n';
+		std::cerr << "Message is too long" << '\n';
 	}
 
 
@@ -145,7 +165,7 @@ int main()
 
 		if (connected == false)
 		{
-			std::cout << "Connection closed" << '\n';
+			std::cerr << "Connection closed" << '\n';
 			break;
 		}
 
@@ -165,7 +185,7 @@ int main()
 		{
 			if (e.code() == ConnShutdown)
 			{
-				std::cout << "Connection closed" << '\n';
+				std::cerr << "Connection closed" << '\n';
 				// To be able to go the join after /exit
 				break;
 			}
@@ -176,7 +196,7 @@ int main()
 
 		catch (const std::length_error&)
 		{
-			std::cout << "Message is too long" << '\n';
+			std::cerr << "Message is too long" << '\n';
 			continue;
 		}
 	}

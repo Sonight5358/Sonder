@@ -288,7 +288,7 @@ Item{
                         anchors.left: parent.left
                         anchors.leftMargin: 12
 
-                        spacing: 4
+                        spacing: 1
 
                         Text{
                             id: nickname

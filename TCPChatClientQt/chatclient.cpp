@@ -2,9 +2,9 @@
 #include "Framing.h"
 #include "Address.h"
 #include "Retry.h"
+#include "HandshakeError.h"
 
 #include <QDebug>
-
 
 ChatClient::ChatClient(QObject *parent) : QObject(parent)
 {
@@ -94,7 +94,33 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
 			std::chrono::seconds(1)
 		);
 
-        SendPacket(clientSocket, MessageType::Handshake, nickname);
+        SendPacket(clientSocket, MessageType::Handshake, EncodeHandshake(protocolVer, nickname));
+
+        std::optional<Packet> packet = RecvPacket(clientSocket);
+
+        if (!packet)
+        {
+            throw HandshakeError("No server respond");
+        }
+
+        if (packet->type == MessageType::Reject)
+        {   
+            std::optional<ErrorNReject> errorNreject = DecodeReject(packet->content);
+
+            if (!errorNreject)
+            {
+                throw HandshakeError("Malformed reject packet");
+            }
+
+            emit rejected(static_cast<int>(errorNreject->code), QString::fromStdString(errorNreject->rejection));
+
+            throw HandshakeError(errorNreject->rejection);
+        }
+
+        if (packet->type != MessageType::Welcome)
+        {
+            throw HandshakeError("Wrong packet type");
+        }
 
 		isConnected = true;
 		emit connected();
@@ -141,6 +167,11 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
 			qWarning() << e.what();
 		}
 	}
+
+    catch (const HandshakeError& e)
+    {
+        qWarning() << QString::fromStdString(e.what());
+    }
 
 	catch (const std::exception& e)
 	{

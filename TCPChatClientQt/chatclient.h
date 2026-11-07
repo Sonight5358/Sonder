@@ -35,4 +35,5 @@ signals:
 
     void connected();
     void disconnected();
+    void rejected(int code, const QString& why);
 };

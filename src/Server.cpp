@@ -27,19 +27,39 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 			return;
 		}
 
-		name = packetName->content;
-
 		if (packetName->type != MessageType::Handshake)
 		{
 			std::cerr << "Wrong name type" << '\n';
 			return;
 		}
 
-		if (name->length() > MaxNameLen || name->empty())
+		std::optional<ProtocolNNick> protocolNnick = DecodeHandshake(packetName->content);
+
+		if (!protocolNnick)
 		{
+			std::cerr << "No name" << '\n';
+			return;
+		}
+
+		uint8_t verCheck = protocolNnick->protocol;
+
+		if (verCheck != protocolVer)
+		{
+			Client->Send(EncodeReject(RejectType::OldClient, "Please update your client"), MessageType::Reject);
+			std::cerr << "Old client" << '\n';
+			return;
+		}
+
+		name = protocolNnick->nick;
+
+		if (name->length() > MaxNameLen || name->empty())
+		{	
+			Client->Send(EncodeReject(RejectType::WrongNick, "Invalid name"), MessageType::Reject);
 			std::cerr << "Invalid name" << '\n';
 			return;
 		}
+
+		Client->Send("", MessageType::Welcome);
 
 		// Copy of history from ClientList
 		std::deque<NickNText> hist = list.Add(Client);

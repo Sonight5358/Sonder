@@ -4,7 +4,6 @@ import QtQuick.Effects
 
 Item{
     id: root
-    height: Math.max(60, Math.min(200, messageField.implicitHeight + 25))
 
     property bool isEmpty: messageField.text.trim().length === 0
     property color panelsColor
@@ -22,11 +21,17 @@ Item{
     readonly property bool highlighted: hoverHandler.hovered
                                         || messageField.activeFocus
                                         || contextMenu.visible
+    readonly property double contentHeight: Math.max(54, Math.min(200, messageField.implicitHeight +
+    flick.anchors.topMargin + flick.anchors.bottomMargin))
+
 
     property bool isAppShown
     property int startupDuration
 
+    Component.onCompleted: console.log(root.contentHeight)
+
     opacity: isAppShown ? 1 : 0
+    height: contentHeight
 
     Behavior on opacity{
         NumberAnimation{
@@ -81,12 +86,18 @@ Item{
         easing.type: Easing.OutCubic
     }
 
+    Behavior on height{
+        NumberAnimation{
+            duration: 75
+        }
+    }
+
     Rectangle{
         id: rectBottom
         anchors.fill: parent
 
         color: Qt.alpha(panelsColor, opacityPanels)
-        radius: 30
+        radius: 27
 
         border.width: 1
         border.color: Qt.alpha(borderColor, borderOpacity)
@@ -98,26 +109,12 @@ Item{
             }
         }
 
-        Behavior on height{
-                NumberAnimation{
-                    duration: 75
-                    easing.type: Easing.InOutQuad
-                }
-        }
-
         Rectangle {
             id: rectBottomTop
             anchors.fill: parent
-            anchors.margins: 6
+            anchors.margins: marginChatsField
             color: Qt.alpha(mainColor, opacityPanels)
-            radius: 30
-
-            Behavior on height{
-                    NumberAnimation{
-                        duration: 75
-                        easing.type: Easing.InOutQuad
-                    }
-            }
+            radius: rectBottom.radius - marginChatsField
         }
 
         Flickable{
@@ -130,10 +127,10 @@ Item{
             anchors.rightMargin: rightContentMargin
 
             anchors.top: parent.top
-            anchors.topMargin: 10
+            anchors.topMargin: 8
 
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 10
+            anchors.bottomMargin: 8
 
             clip: true
             boundsBehavior: Flickable.StopAtBounds

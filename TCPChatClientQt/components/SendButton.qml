@@ -10,8 +10,8 @@ Item{
     id: root
 
     property bool isEmpty: true
-    property int circleSize: 40
-    property int actualButton: 50
+    property int circleSize: 32
+    property int actualButton: 42
     property color panelsColor
     property color mainColor
     property color textColor
@@ -45,7 +45,7 @@ Item{
     // Ring's Lottie animation
     VectorImage{
         id: metalRing
-        property int ringSize: 120
+        property int ringSize: 104
 
         width: button.hovered ? ringSize * 1.15 : ringSize
         height: button.hovered ? ringSize * 1.15 : ringSize

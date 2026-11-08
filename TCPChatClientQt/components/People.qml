@@ -65,6 +65,7 @@ Item{
                 text: "Coming soon..."
                 font: appFont
                 color: textColor
+                opacity: 0.7
 
                 horizontalAlignment: Text.AlignHCenter
             }

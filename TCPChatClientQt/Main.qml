@@ -33,8 +33,8 @@ ApplicationWindow{
     property color borderColor: "#686868"
     property color myBorderColor: "#484848"
     property color otherBorderColor: "#2E2E2E"
-    property int marginEl: 10
-    property int marginChatsField: 6
+    property int marginEl: 2
+    property int marginChatsField: 4
     property int marginTopBottom: 5
     property double opacityPanels: 0.6
     property double opacityMenu: 0.9
@@ -113,7 +113,7 @@ ApplicationWindow{
         anchors.bottom: parent.bottom
         anchors.bottomMargin: appWindow.marginEl
         anchors.left: rectLeft.right
-        anchors.leftMargin: marginChatsField
+        anchors.leftMargin: marginEl
         anchors.right: parent.right
         anchors.rightMargin: appWindow.marginEl
 
@@ -197,11 +197,11 @@ ApplicationWindow{
         }
 
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 50
+        anchors.bottomMargin: 27
         anchors.left: rectLeft.right
-        anchors.leftMargin: 50
+        anchors.leftMargin: 27
         anchors.right: parent.right
-        anchors.rightMargin: 50
+        anchors.rightMargin: 27
 
         panelsColor: appWindow.panelsColor
         mainColor: appWindow.mainColor
@@ -240,7 +240,7 @@ ApplicationWindow{
             anchors.bottom: messageSendArea.bottom
             anchors.bottomMargin: 6
             anchors.right: messageSendArea.right
-            anchors.rightMargin: 5
+            anchors.rightMargin: 6
 
             isEmpty: messageSendArea.isEmpty
             panelsColor: appWindow.panelsColor
@@ -261,6 +261,7 @@ ApplicationWindow{
         anchors.right: parent.right
         anchors.rightMargin: chatRightMargin
 
+        marginChatsField: appWindow.marginChatsField
         panelsColor: appWindow.panelsColor
         mainColor: appWindow.mainColor
         textColor: appWindow.textColor

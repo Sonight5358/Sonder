@@ -1,5 +1,4 @@
 import QtQuick 2.15
-import QtQuick.Controls.Basic
 import QtQuick.Effects
 
 Item{
@@ -12,38 +11,25 @@ Item{
     property double opacityPanels
     property font appTextFont
     property string connectionStatus
+    property int marginChatsField
 
     property bool collapsed: false
-    property real collapse: 0
+    property real collapse: collapsed ? 1 : 0
 
-    property double chatTopMargin: 50 - 20 * root.collapse
-    property double chatLeftMargin: 160 + 40 * root.collapse
-    property double chatRightMargin: 160 + 40 * root.collapse
+    property double chatTopMargin: 35 - 20 * root.collapse
+    property double chatLeftMargin: 160 + 60 * root.collapse
+    property double chatRightMargin: 160 + 60 * root.collapse
     property bool isAppShown
     property int startupDuration
 
     opacity: isAppShown ? 1 : 0
-    height: 52 - 10 * root.collapse
+    height: 50 - 10 * root.collapse
 
-    Behavior on opacity{
+    Behavior on collapse{
         NumberAnimation{
-            duration:  startupDuration
+            duration: root.collapsed ? 800 : 500
             easing.type: Easing.OutCubic
         }
-    }
-
-    NumberAnimation{
-        id: collapseAnim
-        target: root
-        property: "collapse"
-        easing.type: Easing.InOutCubic
-    }
-
-    onCollapsedChanged: {
-        collapseAnim.stop()
-        collapseAnim.duration = collapsed ? 800 : 400
-        collapseAnim.to = collapsed ? 1 : 0
-        collapseAnim.start()
     }
 
     RectangularShadow{
@@ -64,15 +50,15 @@ Item{
         anchors.fill: parent
 
         color: Qt.alpha(panelsColor, opacityPanels)
-        radius: 30
+        radius: root.height / 2
         opacity: 1 - 0.6 * root.collapse
 
         Rectangle{
             id: chatInfoTop
             anchors.fill: parent
-            anchors.margins: 6
+            anchors.margins: root.marginChatsField
             color: Qt.alpha(mainColor, opacityPanels)
-            radius: 30
+            radius: chatInfoBottom.radius - root.marginChatsField
 
             opacity: 1 - 1 * root.collapse
         }
@@ -84,8 +70,6 @@ Item{
 
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
-
-            x: 20 * (1 - root.collapse) + (parent.width - width) / 2 * root.collapse
         }
 
         HoverHandler{
@@ -105,8 +89,8 @@ Item{
 
     Timer{
         id: hideTimer
-        interval: 2500
-        running: true
+        interval: 400
+        running: isAppShown
         onTriggered: root.collapsed = true
     }
 }

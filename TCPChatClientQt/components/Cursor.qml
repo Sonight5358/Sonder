@@ -44,13 +44,7 @@ Item{
 
         Behavior on x{
             SmoothedAnimation{
-                duration: 50
-                velocity: -1
-            }
-        }
-        Behavior on y{
-            SmoothedAnimation{
-                duration: 50
+                duration: 40
                 velocity: -1
             }
         }

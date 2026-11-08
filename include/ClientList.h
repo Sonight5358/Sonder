@@ -14,11 +14,11 @@ class ClientList
 private:
 	std::vector<std::shared_ptr<Connection>> list;
 	std::mutex mutex;
-	std::deque<NickNText> history;
+	std::deque<HistoryMessage> history;
 	size_t maxMessageC = 100;
 
 public:
-	std::deque<NickNText> Add(std::shared_ptr<Connection> client);
+	std::deque<HistoryMessage> Add(std::shared_ptr<Connection> client);
 
 	void Broadcast(const std::shared_ptr<Connection>& sender, std::string_view nick, std::string_view message);
 

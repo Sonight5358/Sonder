@@ -31,7 +31,7 @@ public:
     Q_INVOKABLE void connectToServer(const QString &address, const QString &nickname);
 
 signals:
-    void messageReceived(const QString& sender, const QString& text, bool isHistory);
+    void messageReceived(const QString& sender, const QString& text, qint64 timestamp, bool isHistory);
 
     void connected();
     void disconnected();

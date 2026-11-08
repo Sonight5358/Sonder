@@ -62,11 +62,11 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 		Client->Send("", MessageType::Welcome);
 
 		// Copy of history from ClientList
-		std::deque<NickNText> hist = list.Add(Client);
+		std::deque<HistoryMessage> hist = list.Add(Client);
 
-		for (const NickNText& x : hist)
+		for (const HistoryMessage& x : hist)
 		{	
-			std::string encoded = EncodeText(x.nick, x.text);
+			std::string encoded = EncodeTimestamp(x.timestamp, EncodeText(x.nick, x.text));
 			Client->Send(encoded, MessageType::History);
 		}
 

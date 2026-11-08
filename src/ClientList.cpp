@@ -3,8 +3,9 @@
 #include <stdexcept>
 #include <iostream>
 #include <algorithm>
+#include <chrono>
 
-std::deque<NickNText> ClientList::Add(std::shared_ptr<Connection> client)
+std::deque<HistoryMessage> ClientList::Add(std::shared_ptr<Connection> client)
 {
 	std::lock_guard<std::mutex> lock(mutex);
 	list.push_back(std::move(client));
@@ -14,9 +15,12 @@ std::deque<NickNText> ClientList::Add(std::shared_ptr<Connection> client)
 
 void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::string_view nick, std::string_view message)
 {	
+	uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::system_clock::now().time_since_epoch()).count();
+
 	std::vector<std::shared_ptr<Connection>> snapshot;
 
-	std::string encoded = EncodeText(nick, message);
+	std::string encoded = EncodeTimestamp(now, EncodeText(nick, message));
 
 	{
 		std::lock_guard<std::mutex> lock(mutex);
@@ -28,7 +32,7 @@ void ClientList::Broadcast(const std::shared_ptr<Connection>& sender, std::strin
 			history.pop_front();
 		}
 
-		history.emplace_back(NickNText{ std::string(nick), std::string(message) });
+		history.emplace_back(HistoryMessage{ std::string(nick), std::string(message), now });
 	}
 
 	for (const std::shared_ptr<Connection>& x : snapshot)

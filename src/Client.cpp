@@ -31,15 +31,16 @@ void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 					continue;
 				}
 
-				std::optional<NickNText> nickNtext = DecodeText(message->content);
+				std::optional<HistoryMessage> nickNtextNtime = DecodeHistory(message->content);
 
-				if (!nickNtext)
+				if (!nickNtextNtime)
 				{
 					std::cerr << "Malformed packet" << '\n';
 					continue;
 				}
 
-				std::cerr << nickNtext->nick << ": " << nickNtext->text << '\n';
+				std::cout << nickNtextNtime->nick << ": " << nickNtextNtime->text 
+					<< " (" << nickNtextNtime->timestamp << ')' << '\n';
 			}
 		}
 	}

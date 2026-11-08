@@ -140,15 +140,15 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
                 continue;
             }
 
-            std::optional<NickNText> nickNtext = DecodeText(message->content);
+            std::optional<HistoryMessage> nickNtextNtime = DecodeHistory(message->content);
 
-            if (!nickNtext)
+            if (!nickNtextNtime)
             {
                 qWarning() << "Malformed packet";
                 continue;
             }
 
-            emit messageReceived(QString::fromStdString(nickNtext->nick), QString::fromStdString(nickNtext->text), message->type == MessageType::History);
+            emit messageReceived(QString::fromStdString(nickNtextNtime->nick), QString::fromStdString(nickNtextNtime->text), static_cast<qint64>(nickNtextNtime->timestamp), message->type == MessageType::History);
 		}
 	}
 

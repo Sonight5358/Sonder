@@ -20,6 +20,7 @@ Item{
     property int marginChatsField
     property double opacityMenu
     property font appSmallFont
+    property font appTimeFont
     property real sendAreaHeight: 0
     property int menuIndex: -1
     property bool isAppShown
@@ -40,8 +41,8 @@ Item{
         id: messageModel
     }
 
-    function addMessage(sender, text, mine){
-        messageModel.insert(0, {nick: sender, messageText: text, isMine: mine})
+    function addMessage(sender, text, timestamp, mine){
+        messageModel.insert(0, {nick: sender, messageText: text, timeStamp: timestamp, isMine: mine})
     }
 
     function deleteMessage(i){
@@ -221,6 +222,7 @@ Item{
 
                 required property string nick
                 required property string messageText
+                required property double timeStamp
                 required property bool isMine
                 required property int index
                 property alias messageItem: message
@@ -303,35 +305,48 @@ Item{
                             visible: !delegateRoot.isMine
                         }
 
-                        TextEdit{
-                            id: message
+                        Row{
+                            spacing: 4
 
-                            width: Math.min(implicitWidth, delegateRoot.maxContentWidth)
+                            TextEdit{
+                                id: message
 
-                            readOnly: true
-                            selectByKeyboard: true
-                            selectByMouse: true
+                                width: Math.min(implicitWidth, delegateRoot.maxContentWidth)
 
-                            selectionColor: selectedText.length > 0 ? textColor : "transparent"
-                            selectedTextColor: selectedText.length > 0 ? "#171717" : textColor
+                                readOnly: true
+                                selectByKeyboard: true
+                                selectByMouse: true
 
-                            text: delegateRoot.messageText
-                            color: textColor
-                            font: appTextFont
+                                selectionColor: selectedText.length > 0 ? textColor : "transparent"
+                                selectedTextColor: selectedText.length > 0 ? "#171717" : textColor
 
-                            wrapMode: Text.Wrap
+                                text: delegateRoot.messageText
+                                color: textColor
+                                font: appTextFont
 
-                            Behavior on selectionColor{
-                                ColorAnimation {
-                                    duration: 150
-                                    easing.type: Easing.InCubic
+                                wrapMode: Text.Wrap
+
+                                Behavior on selectionColor{
+                                    ColorAnimation {
+                                        duration: 150
+                                        easing.type: Easing.InCubic
+                                    }
+                                }
+                                Behavior on selectedTextColor{
+                                    ColorAnimation {
+                                        duration: 150
+                                        easing.type: Easing.InCubic
+                                    }
                                 }
                             }
-                            Behavior on selectedTextColor{
-                                ColorAnimation {
-                                    duration: 150
-                                    easing.type: Easing.InCubic
-                                }
+
+                            Text{
+                                text: Qt.formatTime(new Date(timeStamp), "hh:mm")
+
+                                anchors.bottom: parent.bottom
+
+                                font: appTimeFont
+                                color: Qt.alpha(textColor, 0.7)
                             }
                         }
                     }

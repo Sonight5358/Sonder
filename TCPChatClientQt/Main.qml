@@ -46,6 +46,7 @@ ApplicationWindow{
     property font appFont: Qt.font({family: manrope.name, weight: 600, pixelSize: 22})
     property font appTextFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 18})
     property font appSmallFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 14})
+    property font appTimeFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 12})
     property bool notified: false
 
     property Gradient defaultGrad: Gradient{
@@ -127,6 +128,7 @@ ApplicationWindow{
         opacityMenu: appWindow.opacityMenu
         appSmallFont: appWindow.appSmallFont
         appTextFont: appWindow.appTextFont
+        appTimeFont: appWindow.appTimeFont
         defaultGrad: appWindow.defaultGrad
         windowsRadius: appWindow.windowsRadius
         marginChatsField: appWindow.marginChatsField
@@ -190,7 +192,7 @@ ApplicationWindow{
         id: messageSendArea
 
         onSendRequested: function(message){
-            rectChat.addMessage(settings.nickname, message, true)
+            rectChat.addMessage(settings.nickname, message, Date.now(), true)
             chatClient.sendMessage(message)
         }
 
@@ -339,8 +341,8 @@ ApplicationWindow{
 
     Connections{
         target: chatClient
-        function onMessageReceived(sender, text, isHistory) {
-            rectChat.addMessage(sender, text, settings.nickname === sender)
+        function onMessageReceived(sender, text, timestamp, isHistory) {
+            rectChat.addMessage(sender, text, timestamp, settings.nickname === sender)
 
             if ((!appWindow.active) && appWindow.notified === false && isHistory === false)
             {

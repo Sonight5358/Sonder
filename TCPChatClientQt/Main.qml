@@ -237,8 +237,7 @@ ApplicationWindow{
 
             onClicked: messageSendArea.send()
 
-            anchors.bottom: messageSendArea.bottom
-            anchors.bottomMargin: 6
+            anchors.verticalCenter: parent.verticalCenter
             anchors.right: messageSendArea.right
             anchors.rightMargin: 6
 
@@ -247,6 +246,26 @@ ApplicationWindow{
             mainColor: appWindow.mainColor
             textColor: appWindow.textColor
             appFont: appWindow.appFont
+        }
+
+        ElementButton{
+            id: paperClip
+
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: messageSendArea.left
+            anchors.leftMargin: appWindow.marginChatsField
+
+            mainColor: appWindow.mainColor
+            textColor: appWindow.textColor
+            opacityMenu: appWindow.opacityMenu
+            appSmallFont: appWindow.appSmallFont
+            borderColor: appWindow.borderColor
+            borderIdleOpacity: appWindow.borderIdleOpacity
+
+            size: 52 - appWindow.marginChatsField * 2
+            radiusButton: size / 2
+            iconName: "paperclip"
+            tooltipText: "Add file"
         }
     }
 

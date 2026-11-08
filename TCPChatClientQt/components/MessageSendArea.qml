@@ -28,8 +28,6 @@ Item{
     property bool isAppShown
     property int startupDuration
 
-    Component.onCompleted: console.log(root.contentHeight)
-
     opacity: isAppShown ? 1 : 0
     height: contentHeight
 
@@ -113,7 +111,7 @@ Item{
             id: rectBottomTop
             anchors.fill: parent
             anchors.margins: marginChatsField
-            color: Qt.alpha(mainColor, opacityPanels)
+            color: mainColor
             radius: rectBottom.radius - marginChatsField
         }
 
@@ -159,6 +157,7 @@ Item{
                 background: null
 
                 rightPadding: 10
+                leftPadding: 34
 
                 font: appTextFont
                 color: textColor

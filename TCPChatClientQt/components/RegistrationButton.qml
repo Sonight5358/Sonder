@@ -21,7 +21,7 @@ Button{
 
     Behavior on opacity{
         NumberAnimation{
-            duration: 150
+            duration: 100
             easing.type: Easing.OutCubic
         }
     }
@@ -39,11 +39,12 @@ Button{
         id: buttonRectangleBottom
 
         radius: height / 2
-        color: root.hovered && root.enabled ? Qt.lighter(root.textColor, 1.25) : root.textColor
+        color: root.hovered && root.enabled ? Qt.lighter(root.textColor, 1.2) : root.textColor
 
         Behavior on color{
             ColorAnimation {
-                duration: 150
+                duration: 100
+                easing.type: Easing.OutCubic
             }
         }
     }

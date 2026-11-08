@@ -34,6 +34,8 @@ qt_add_qml_module(Sonder
         components/OverlayScreen.qml
         components/EntryScreen.qml
         components/UpdateScreen.qml
+        components/ElementButton.qml
+        components/CustomToolTip.qml
 
     SOURCES chatclient.h chatclient.cpp clipboard.h clipboard.cpp notification.h notification.cpp
 
@@ -46,6 +48,7 @@ qt_add_qml_module(Sonder
         assets/icons/scan-text.svg
         assets/icons/scissors.svg
         assets/icons/trash.svg
+        assets/icons/paperclip.svg
         assets/sonder.ico
 )
 

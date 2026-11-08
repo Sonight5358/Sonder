@@ -237,7 +237,8 @@ ApplicationWindow{
 
             onClicked: messageSendArea.send()
 
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.bottom:messageSendArea.bottom
+            anchors.bottomMargin: (messageSendArea.minHeight - height) / 2
             anchors.right: messageSendArea.right
             anchors.rightMargin: 6
 
@@ -251,7 +252,8 @@ ApplicationWindow{
         ElementButton{
             id: paperClip
 
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.bottom:messageSendArea.bottom
+            anchors.bottomMargin: (messageSendArea.minHeight - height) / 2
             anchors.left: messageSendArea.left
             anchors.leftMargin: appWindow.marginChatsField
 

@@ -6,6 +6,7 @@ Item{
     id: root
 
     property bool isEmpty: messageField.text.trim().length === 0
+    property int minHeight: 54
     property color panelsColor
     property color mainColor
     property color textColor
@@ -21,9 +22,8 @@ Item{
     readonly property bool highlighted: hoverHandler.hovered
                                         || messageField.activeFocus
                                         || contextMenu.visible
-    readonly property double contentHeight: Math.max(54, Math.min(200, messageField.implicitHeight +
+    readonly property double contentHeight: Math.max(minHeight, Math.min(200, messageField.implicitHeight +
     flick.anchors.topMargin + flick.anchors.bottomMargin))
-
 
     property bool isAppShown
     property int startupDuration

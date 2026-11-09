@@ -21,7 +21,7 @@ Sonder is a work-in-progress TCP chat application built to practice C++, Windows
 - **OS:** Windows (links against `ws2_32`) or Linux (except gui)
 - **Compiler:** MSVC, GCC, Clang
 - **CMake:** 3.20 or newer
-- **Qt:** Qt 6.10+ for GUI (modules: Quick, Widgets, Multimedia, Lottie)
+- **Qt:** Qt 6.10+ for GUI (modules: Quick, Widgets, Multimedia, ShaderTools)
 
 ## Build
 
@@ -80,7 +80,6 @@ cmake --build build --config Release
 ## Roadmap
 
 - Photo, audio and video
-- Timestamps
 - Linux support for gui
 - Avatars
 - Selfhosted servers via containers
@@ -92,6 +91,7 @@ cmake --build build --config Release
 - [Microsoft Winsock documentation](https://learn.microsoft.com/en-us/windows/win32/winsock/windows-sockets-start-page-2)
 - [CMake documentation](https://cmake.org/cmake/help/latest/)
 - [Qt Quick documentation](https://doc.qt.io/qt-6/qtquick-index.html)
+- [The book of shaders](https://thebookofshaders.com/)
 
 ## License
 
@@ -102,5 +102,5 @@ If you run a modified version of the server for other users, you must make your 
 
 Third-party components:
 
-- [Qt](https://www.qt.io/) - the GUI uses Qt under LGPLv3; the Qt Lottie Animation and Qt Quick Timeline modules are GPLv3, see [licenses/Qt-LICENSE.txt](licenses/Qt-LICENSE.txt)
+- [Qt](https://www.qt.io/) - the GUI uses Qt under LGPLv3, see [licenses/Qt-LICENSE.txt](licenses/Qt-LICENSE.txt)
 - [Lucide](https://lucide.dev/) icons - ISC License, see [licenses/lucide-LICENSE.txt](licenses/lucide-LICENSE.txt)

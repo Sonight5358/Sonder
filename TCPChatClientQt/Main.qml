@@ -211,7 +211,7 @@ ApplicationWindow{
         borderIdleOpacity: appWindow.borderIdleOpacity
         appTextFont: appWindow.appTextFont
         appSmallFont: appWindow.appSmallFont
-        rightContentMargin: sendButton.width + 15
+        rightContentMargin: 54
         marginChatsField: appWindow.marginChatsField
         opacityMenu: appWindow.opacityMenu
         isAppShown: appWindow.isAppShown
@@ -240,13 +240,20 @@ ApplicationWindow{
             anchors.bottom:messageSendArea.bottom
             anchors.bottomMargin: (messageSendArea.minHeight - height) / 2
             anchors.right: messageSendArea.right
-            anchors.rightMargin: 6
+            anchors.rightMargin: (messageSendArea.minHeight - height) / 2
 
             isEmpty: messageSendArea.isEmpty
-            panelsColor: appWindow.panelsColor
             mainColor: appWindow.mainColor
             textColor: appWindow.textColor
-            appFont: appWindow.appFont
+            opacityMenu: appWindow.opacityMenu
+            appSmallFont: appWindow.appSmallFont
+            borderColor: appWindow.borderColor
+            borderIdleOpacity: appWindow.borderIdleOpacity
+
+            size: 52 - appWindow.marginChatsField * 2
+            radiusButton: size / 2
+            iconName: "globe"
+            tooltipText: isEmpty ? "Nothing to send" : "Send"
         }
 
         ElementButton{
@@ -255,7 +262,7 @@ ApplicationWindow{
             anchors.bottom:messageSendArea.bottom
             anchors.bottomMargin: (messageSendArea.minHeight - height) / 2
             anchors.left: messageSendArea.left
-            anchors.leftMargin: appWindow.marginChatsField
+            anchors.leftMargin: (messageSendArea.minHeight - height) / 2
 
             mainColor: appWindow.mainColor
             textColor: appWindow.textColor

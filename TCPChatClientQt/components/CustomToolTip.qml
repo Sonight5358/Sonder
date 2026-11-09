@@ -12,7 +12,7 @@ ToolTip{
     property color borderColor
     property double borderIdleOpacity
 
-    delay: 500
+    delay: 700
     padding: 6
 
     background: Item{

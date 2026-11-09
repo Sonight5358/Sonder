@@ -1,164 +1,94 @@
 import QtQuick 2.15
 import QtQuick.Controls.Basic
-import QtQuick.Shapes
-import QtQuick.VectorImage
-import QtQuick.Effects
 import QtMultimedia
-import Qt.labs.lottieqt
+import QtQuick.Effects
 
-Item{
-    id: root
+Button{
+    id: button
 
     property bool isEmpty: true
-    property int circleSize: 32
-    property int actualButton: 42
-    property color panelsColor
+    property int size
+    property int radiusButton
     property color mainColor
+    property string iconName
+    property string tooltipText
     property color textColor
-    property font appFont
-
-    signal clicked()
-
-    width: actualButton
-    height: actualButton
+    property double opacityMenu
+    property font appSmallFont
+    property color borderColor
+    property double borderIdleOpacity
 
     function startSend(){
         soundPlayer.play()
-        lottieController.frameRate = 90
-        ringBoost.start()
+        shaderAnim.restart()
         ringTimer.start()
     }
 
-    // Glow effect of ring's animation
-    MultiEffect{
-        id: bigGlow
-
-        anchors.fill: metalRing
-        source: metalRing
-
-        blurEnabled: true
-        blur: 0.7
-        blurMax: 48
-        brightness: 0.3
+    onClicked: {
+        startSend()
     }
 
-    // Ring's Lottie animation
-    VectorImage{
-        id: metalRing
-        property int ringSize: 104
+    width: button.size
+    height: button.size
 
-        width: button.hovered ? ringSize * 1.15 : ringSize
-        height: button.hovered ? ringSize * 1.15 : ringSize
+    enabled: !isEmpty
 
-        Behavior on width{
-            NumberAnimation{
-                duration: 100
-                easing.type: Easing.InOutCubic
-            }
-        }
-
-        Behavior on height{
-            NumberAnimation{
-                duration: 100
-                easing.type: Easing.InOutCubic
-            }
-        }
-
-        anchors.centerIn: button
-
-        source: "qrc:/qt/qml/TCPChatClientQt/assets/SomethingInteresting.json"
-
-        assumeTrustedSource: true
-
-        animations.loops: Animation.Infinite
-
-        preferredRendererType: VectorImage.CurveRenderer
-
-        LottieVectorImageController{
-            id: lottieController
+    contentItem: Item{
+        Image{
+            anchors.centerIn: parent
+            visible: iconName !== ""
+            source: iconName !== "" ? "qrc:/qt/qml/TCPChatClientQt/assets/icons/" + iconName + ".svg" : ""
+            sourceSize: Qt.size(22, 22)
         }
     }
 
-    // Bottom of the button
-    Rectangle{
+    background: Rectangle{
         id: buttonRectangleBottom
-        anchors.centerIn: button
 
-        width: button.hovered  ? actualButton * 1.2 : actualButton
-        height: button.hovered ? actualButton * 1.2 : actualButton
+        radius: button.radiusButton
+        color: button.hovered && !isEmpty ? Qt.lighter(mainColor, 1.35) : mainColor
 
-        Behavior on width{
-            NumberAnimation{
-                duration: 100
-                easing.type: Easing.InOutCubic
+        Behavior on color{
+            ColorAnimation {
+                duration: 200
+                easing.type: Easing.OutCubic
             }
         }
-
-        Behavior on height{
-            NumberAnimation{
-                duration: 100
-                easing.type: Easing.InOutCubic
-            }
-        }
-
-        radius: width / 2
-        color: panelsColor
     }
 
-    // Top of the button
-    Rectangle{
-        id: buttonRectangleTop
-        anchors.centerIn: button
+    ShaderEffect{
+        id: shader
 
-        width: circleSize
-        height: circleSize
+        anchors.centerIn: parent
 
-        scale: button.hovered ? 1.2 : 1.0
+        width: 60
+        height: 60
 
-        Behavior on scale {
-            NumberAnimation {
-                duration: 100
-                easing.type: Easing.InOutCubic
-            }
-        }
-
-        radius: width / 2
-        color: mainColor
+        property real progress: 1
+        fragmentShader: "qrc:/shaders/assets/ButtonShader.frag.qsb"
     }
 
-    // Button
-    Button{
-        id: button
-        text: "S"
+    NumberAnimation{
+        id: shaderAnim
+        target: shader
 
-        enabled: !ringBoost.running && !isEmpty
+        property: "progress"
+        from: 0
+        to: 1
+        duration: 600
+        easing.type: Easing.OutCubic
+    }
 
-        width: actualButton
-        height: actualButton
+    CustomToolTip{
+        text: tooltipText
+        visible: button.hovered && tooltipText !== ""
 
-        onHoveredChanged: {
-            lottieController.frameRate = button.hovered ? 60 : 30
-        }
-
-        onClicked: {
-            root.clicked()
-
-            startSend()
-        }
-
-        contentItem: Text{
-            text: button.text
-            color: textColor
-            font: appFont
-
-
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-        }
-
-        background: Rectangle{
-            color: "transparent"
-        }
+        mainColor: button.mainColor
+        textColor: button.textColor
+        opacityMenu: button.opacityMenu
+        appSmallFont: button.appSmallFont
+        borderColor: button.borderColor
+        borderIdleOpacity: button.borderIdleOpacity
     }
 
     // Send sound
@@ -172,32 +102,5 @@ Item{
     Timer{
         id: ringTimer
         interval: 500
-
-        onTriggered: {
-            lottieController.frameRate = button.hovered ? 60 : 30
-        }
-    }
-
-    SequentialAnimation{
-        id: ringBoost
-
-        NumberAnimation {
-            target: metalRing
-            property: "ringSize"
-            from: 120
-            to: 128
-            duration: 250
-            easing.type: Easing.InOutCubic
-        }
-
-
-        NumberAnimation {
-            target: metalRing
-            property: "ringSize"
-            from: 128
-            to: 120
-            duration: 250
-            easing.type: Easing.InOutCubic
-        }
     }
 }

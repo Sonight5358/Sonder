@@ -4,7 +4,7 @@ project(Sonder VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick Widgets Multimedia Lottie ShaderTools)
+find_package(Qt6 REQUIRED COMPONENTS Quick Widgets Multimedia ShaderTools)
 
 qt_standard_project_setup(REQUIRES 6.10)
 
@@ -22,7 +22,6 @@ qt_add_qml_module(Sonder
     URI TCPChatClientQt
     QML_FILES
         Main.qml
-        components/SendButton.qml
         components/MessageSendArea.qml
         components/ChatInformation.qml
         components/Chat.qml
@@ -36,6 +35,7 @@ qt_add_qml_module(Sonder
         components/UpdateScreen.qml
         components/ElementButton.qml
         components/CustomToolTip.qml
+        components/SendButton.qml
 
     SOURCES chatclient.h chatclient.cpp clipboard.h clipboard.cpp notification.h notification.cpp
 
@@ -49,6 +49,7 @@ qt_add_qml_module(Sonder
         assets/icons/scissors.svg
         assets/icons/trash.svg
         assets/icons/paperclip.svg
+        assets/icons/globe.svg
         assets/sonder.ico
 )
 
@@ -56,6 +57,7 @@ qt_add_shaders(Sonder "app_shaders"
     PREFIX "/shaders"
     FILES
         assets/DitheringShader.frag
+        assets/ButtonShader.frag
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -73,7 +75,6 @@ target_link_libraries(Sonder
     PRIVATE
         Qt6::Quick
         Qt6::Widgets
-        Qt::Lottie
         Qt6::Multimedia
         dwmapi
         SonderBack

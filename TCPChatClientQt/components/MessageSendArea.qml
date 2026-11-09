@@ -11,7 +11,6 @@ Item{
     property color mainColor
     property color textColor
     property color borderColor
-    property int rightContentMargin
     property int marginChatsField
     property double opacityPanels
     property font appTextFont
@@ -19,6 +18,7 @@ Item{
     property double borderIdleOpacity
     property double opacityMenu
     property font appSmallFont
+    property double rightContentMargin
     readonly property bool highlighted: hoverHandler.hovered
                                         || messageField.activeFocus
                                         || contextMenu.visible
@@ -119,7 +119,6 @@ Item{
             id: flick
 
             anchors.left: parent.left
-            anchors.leftMargin: 20
 
             anchors.right: parent.right
             anchors.rightMargin: rightContentMargin
@@ -135,6 +134,8 @@ Item{
 
             ScrollBar.vertical: ScrollBar{
                 id: sbar
+
+                visible: root.height > root.minHeight
 
                 contentItem: Rectangle{
                     implicitWidth: 4
@@ -156,8 +157,8 @@ Item{
                 id: messageField
                 background: null
 
-                rightPadding: 10
-                leftPadding: 34
+                rightPadding: 0
+                leftPadding: 54
 
                 font: appTextFont
                 color: textColor

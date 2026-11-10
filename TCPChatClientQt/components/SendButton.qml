@@ -21,7 +21,7 @@ Button{
     function startSend(){
         soundPlayer.play()
         shaderAnim.restart()
-        ringTimer.start()
+        scaleAnim.restart()
     }
 
     onClicked: {
@@ -34,11 +34,33 @@ Button{
     enabled: !isEmpty
 
     contentItem: Item{
+
         Image{
+            id: iconItem
             anchors.centerIn: parent
             visible: iconName !== ""
             source: iconName !== "" ? "qrc:/qt/qml/TCPChatClientQt/assets/icons/" + iconName + ".svg" : ""
             sourceSize: Qt.size(22, 22)
+        }
+    }
+
+    SequentialAnimation{
+        id: scaleAnim
+
+        NumberAnimation {
+            target: iconItem
+            property: "scale"
+            to: 1.15
+            duration: 100
+            easing.type: Easing.OutCubic
+        }
+
+        NumberAnimation {
+            target: iconItem
+            property: "scale"
+            to: 1
+            duration: 100
+            easing.type: Easing.OutCubic
         }
     }
 
@@ -61,8 +83,8 @@ Button{
 
         anchors.centerIn: parent
 
-        width: 60
-        height: 60
+        width: 54
+        height: 54
 
         property real progress: 1
         fragmentShader: "qrc:/shaders/assets/ButtonShader.frag.qsb"
@@ -96,11 +118,5 @@ Button{
         id: soundPlayer
         volume: 0.1
         source: "qrc:/qt/qml/TCPChatClientQt/assets/SendS.wav"
-    }
-
-    // Animations
-    Timer{
-        id: ringTimer
-        interval: 500
     }
 }

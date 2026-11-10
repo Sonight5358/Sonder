@@ -72,8 +72,8 @@ Item{
 
 
         radius: rectBottom.radius
-        blur: 30
-        spread: 5
+        blur: 25
+        spread: 3
         color: Qt.rgba(0, 0, 0, opacityPanels - 0.3)
     }
 
@@ -173,13 +173,13 @@ Item{
 
                 Behavior on selectionColor{
                     ColorAnimation {
-                        duration: 150
+                        duration: 75
                         easing.type: Easing.InCubic
                     }
                 }
                 Behavior on selectedTextColor{
                     ColorAnimation {
-                        duration: 150
+                        duration: 75
                         easing.type: Easing.InCubic
                     }
                 }

@@ -27,7 +27,7 @@ Item{
 
     Behavior on collapse{
         NumberAnimation{
-            duration: root.collapsed ? 800 : 500
+            duration: root.collapsed ? 500 : 800
             easing.type: Easing.OutCubic
         }
     }
@@ -38,8 +38,8 @@ Item{
         anchors.fill: chatInfoBottom
 
         radius: chatInfoBottom.radius
-        blur: 30
-        spread: 5
+        blur: 25
+        spread: 3
         color: Qt.rgba(0, 0, 0, opacityPanels - 0.1)
 
         opacity: 1 - 1 * root.collapse

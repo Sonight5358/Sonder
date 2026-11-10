@@ -14,16 +14,28 @@ Button{
     property font appSmallFont
     property color borderColor
     property double borderIdleOpacity
+    property bool toolTipVisible
+    property real iconRot: 0
 
     width: root.size
     height: root.size
 
     contentItem: Image{
+
+        rotation: iconRot
+
         visible: iconName !== ""
         source: iconName !== "" ? "qrc:/qt/qml/TCPChatClientQt/assets/icons/" + iconName + ".svg" : ""
         sourceSize: Qt.size(22, 22)
 
         fillMode: Image.Pad
+
+        Behavior on rotation{
+            NumberAnimation{
+                duration: 150
+                easing.type: Easing.OutCubic
+            }
+        }
     }
 
     background: Rectangle{
@@ -42,7 +54,8 @@ Button{
 
     CustomToolTip{
         text: tooltipText
-        visible: root.hovered && tooltipText !== ""
+
+        visible: root.hovered && tooltipText !== "" && root.toolTipVisible
 
         mainColor: root.mainColor
         textColor: root.textColor

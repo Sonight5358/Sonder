@@ -21,8 +21,8 @@ Menu{
 
     implicitWidth: 250
 
-    topPadding: marginChatsField
-    bottomPadding: marginChatsField
+    topPadding: 6
+    bottomPadding: 6
 
     background: Item{
         id: itemRoot
@@ -33,8 +33,8 @@ Menu{
             anchors.fill: backRect
 
             radius: backRect.radius
-            blur: 30
-            spread: 5
+            blur: 25
+            spread: 3
             color: Qt.rgba(0, 0, 0, opacityPanels - 0.1)
         }
 

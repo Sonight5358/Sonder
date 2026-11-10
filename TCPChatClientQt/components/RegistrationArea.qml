@@ -110,13 +110,13 @@ Item{
 
             Behavior on selectionColor{
                 ColorAnimation {
-                    duration: 150
+                    duration: 75
                     easing.type: Easing.InCubic
                 }
             }
             Behavior on selectedTextColor{
                 ColorAnimation {
-                    duration: 150
+                    duration: 75
                     easing.type: Easing.InCubic
                 }
             }

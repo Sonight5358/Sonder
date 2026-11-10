@@ -36,6 +36,7 @@ qt_add_qml_module(Sonder
         components/ElementButton.qml
         components/CustomToolTip.qml
         components/SendButton.qml
+        components/ChatMenuMedia.qml
 
     SOURCES chatclient.h chatclient.cpp clipboard.h clipboard.cpp notification.h notification.cpp
 
@@ -50,6 +51,10 @@ qt_add_qml_module(Sonder
         assets/icons/trash.svg
         assets/icons/paperclip.svg
         assets/icons/globe.svg
+        assets/icons/file.svg
+        assets/icons/image.svg
+        assets/icons/headphones.svg
+        assets/icons/video.svg
         assets/sonder.ico
 )
 

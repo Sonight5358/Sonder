@@ -275,6 +275,62 @@ ApplicationWindow{
             radiusButton: size / 2
             iconName: "paperclip"
             tooltipText: "Add file"
+            toolTipVisible: !mediaMenu.visible
+            iconRot: mediaMenu.visible ? -75 : 0
+
+            onClicked: {
+                if (mediaMenu.visible){
+                    mediaMenu.close()
+                }
+                else{
+                    mediaMenu.open()
+                }
+            }
+
+            ChatMenuMedia{
+                id: mediaMenu
+
+                startY: -height - 10
+                x: -4
+
+                mainColor: appWindow.mainColor
+                panelsColor: appWindow.panelsColor
+                textColor: appWindow.textColor
+                borderColor: appWindow.borderColor
+                opacityPanels: appWindow.opacityPanels
+                opacityMenu: appWindow.opacityMenu
+                appTextFont: appWindow.appTextFont
+                appSmallFont: appWindow.appSmallFont
+                borderIdleOpacity: appWindow.borderIdleOpacity
+                marginChatsField: appWindow.marginChatsField
+
+                implicitWidth: 200
+
+                Action{
+                    text: "Photo"
+                    enabled: true
+                    // onTriggered:
+                    property string iconName: "image"
+                }
+                Action{
+                    text: "Video"
+                    enabled: true
+                    // onTriggered:
+                    property string iconName: "video"
+                }
+                Action{
+                    text: "Audio"
+                    enabled: true
+                    // onTriggered:
+                    property string iconName: "headphones"
+                }
+                Action{
+                    text: "File"
+                    enabled: true
+                    // onTriggered:
+                    property string iconName: "file"
+                }
+            }
         }
     }
 

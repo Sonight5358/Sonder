@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls.Basic
+import QtQuick.Shapes
 
 Button{
     id: root
@@ -21,12 +22,10 @@ Button{
     height: root.size
 
     contentItem: Image{
-
         rotation: iconRot
 
         visible: iconName !== ""
         source: iconName !== "" ? "qrc:/qt/qml/TCPChatClientQt/assets/icons/" + iconName + ".svg" : ""
-        sourceSize: Qt.size(22, 22)
 
         fillMode: Image.Pad
 

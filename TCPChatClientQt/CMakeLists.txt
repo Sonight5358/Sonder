@@ -37,6 +37,7 @@ qt_add_qml_module(Sonder
         components/CustomToolTip.qml
         components/SendButton.qml
         components/ChatMenuMedia.qml
+        components/ElementButtonPaperclip.qml
 
     SOURCES chatclient.h chatclient.cpp clipboard.h clipboard.cpp notification.h notification.cpp
 

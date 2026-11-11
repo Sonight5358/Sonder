@@ -40,14 +40,13 @@ Button{
             anchors.centerIn: parent
             visible: iconName !== ""
             source: iconName !== "" ? "qrc:/qt/qml/TCPChatClientQt/assets/icons/" + iconName + ".svg" : ""
-            sourceSize: Qt.size(22, 22)
         }
     }
 
     SequentialAnimation{
         id: scaleAnim
 
-        NumberAnimation {
+        NumberAnimation{
             target: iconItem
             property: "scale"
             to: 1.15
@@ -55,7 +54,7 @@ Button{
             easing.type: Easing.OutCubic
         }
 
-        NumberAnimation {
+        NumberAnimation{
             target: iconItem
             property: "scale"
             to: 1

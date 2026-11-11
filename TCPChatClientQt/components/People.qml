@@ -53,22 +53,22 @@ Item{
 
             Behavior on height{
                 NumberAnimation{
-                        duration: 75
-                        easing.type: Easing.InOutQuad
+                    duration: 75
+                    easing.type: Easing.InOutQuad
                 }
             }
-
-            Text{
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-
-                text: "Coming soon..."
-                font: appFont
-                color: textColor
-                opacity: 0.7
-
-                horizontalAlignment: Text.AlignHCenter
-            }
         }
+    }
+
+    Text{
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+
+        text: "Coming soon..."
+        font: appFont
+        color: textColor
+        opacity: 0.5
+
+        horizontalAlignment: Text.AlignHCenter
     }
 }

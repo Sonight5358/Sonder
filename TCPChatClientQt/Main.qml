@@ -256,7 +256,7 @@ ApplicationWindow{
             tooltipText: isEmpty ? "Nothing to send" : "Send"
         }
 
-        ElementButton{
+        ElementButtonPaperclip{
             id: paperClip
 
             anchors.bottom:messageSendArea.bottom
@@ -270,6 +270,8 @@ ApplicationWindow{
             appSmallFont: appWindow.appSmallFont
             borderColor: appWindow.borderColor
             borderIdleOpacity: appWindow.borderIdleOpacity
+
+            opened: mediaMenu.visible
 
             size: 52 - appWindow.marginChatsField * 2
             radiusButton: size / 2

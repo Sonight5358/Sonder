@@ -180,10 +180,26 @@ Item{
             }
 
             addDisplaced: Transition{
-                NumberAnimation{
-                    properties: "y"
-                    duration: 250
-                    easing.type: Easing.OutCubic
+                ParallelAnimation{
+                    NumberAnimation{
+                        properties: "y"
+                        duration: 250
+                        easing.type: Easing.OutCubic
+                    }
+
+                    NumberAnimation{
+                        property: "opacity"
+                        to: 1
+                        duration: 250
+                        easing.type: Easing.OutCubic
+                    }
+
+                    NumberAnimation{
+                        property: "scale"
+                        to: 1
+                        duration: 250
+                        easing.type: Easing.OutCubic
+                    }
                 }
             }
 
@@ -193,16 +209,16 @@ Item{
                         property: "opacity"
                         from: 1
                         to: 0
-                        duration: 200
-                        easing.type: Easing.InCubic
+                        duration: 250
+                        easing.type: Easing.OutCubic
                     }
 
                     NumberAnimation{
                         property: "scale"
                         from: 1
                         to: 0.75
-                        duration: 200
-                        easing.type: Easing.InCubic
+                        duration: 250
+                        easing.type: Easing.OutCubic
                     }
                 }
             }
@@ -210,8 +226,8 @@ Item{
             removeDisplaced: Transition{
                 NumberAnimation{
                     properties: "y"
-                    duration: 200
-                    easing.type: Easing.InCubic
+                    duration: 250
+                    easing.type: Easing.OutCubic
                 }
             }
 

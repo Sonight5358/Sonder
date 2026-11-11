@@ -46,7 +46,7 @@ ApplicationWindow{
     property font appFont: Qt.font({family: manrope.name, weight: 600, pixelSize: 22})
     property font appTextFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 18})
     property font appSmallFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 14})
-    property font appTimeFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 12})
+    property font appTimeFont: Qt.font({family: manrope.name, weight: 500, pixelSize: 11})
     property bool notified: false
 
     property Gradient defaultGrad: Gradient{
@@ -74,7 +74,7 @@ ApplicationWindow{
         entryScreen.isShowed = false
         appWindow.isAppShown = true
 
-        chatClient.connectToServer(/*"92.114.54.182"*/ "127.0.0.1", nickname)
+        chatClient.connectToServer("92.114.54.182", nickname)
         messageSendArea.focusFieldChat()
     }
 

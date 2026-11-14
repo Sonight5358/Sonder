@@ -17,10 +17,14 @@ private:
 	std::deque<HistoryMessage> history;
 	size_t maxMessageC = 100;
 
+	static void Sender(const std::vector<std::shared_ptr<Connection>>& snapshot, const std::shared_ptr<Connection>& sender, std::string_view encoded, MessageType type);
+
 public:
 	std::deque<HistoryMessage> Add(std::shared_ptr<Connection> client);
 
 	void Broadcast(const std::shared_ptr<Connection>& sender, std::string_view nick, std::string_view message);
+
+	void BroadcastImage(const std::shared_ptr<Connection>& sender, std::string_view nick, std::string_view image);
 
 	void Remove(const std::shared_ptr<Connection>& client);
 };

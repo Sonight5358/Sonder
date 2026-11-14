@@ -49,6 +49,65 @@ void ChatClient::sendMessage(const QString &message)
     }
 }
 
+void ChatClient::sendImage(const QUrl& url)
+{
+    if (isConnected == false)
+    {
+        qWarning() << "Connection closed";
+        return;
+    }
+
+    try
+    {
+        QFile file(url.toLocalFile());
+
+        if (file.size() > maxImageSize)
+        {
+            qWarning() << "Image is too big";
+            return;
+        }
+
+        bool result = file.open(QIODevice::ReadOnly);
+
+        if (result == false)
+        {
+            qWarning() << "Image cant be opened";
+            return;
+        }
+
+        QByteArray data = file.readAll();
+
+        SendPacket(clientSocket, MessageType::CTSI, std::string_view(data.constData(), static_cast<size_t>(data.size())));
+
+        //std::optional<QString> url = makeImageUrl(QByteArray::fromStdString(data.constData()));
+
+        //if (!url)
+        //{
+        //    qWarning() << "Invalid url";
+        //}
+
+        //emit imageReceived(QString::fromStdString(nickname), *url, static_cast<qint64>(nickNtextNtime->timestamp), message->type == MessageType::History);
+    }
+
+    catch (const SocketError& e)
+    {
+        if (e.code() == ConnShutdown)
+        {
+            qWarning() << "Connection closed";
+        }
+
+        else
+        {
+            qWarning() << e.what();
+        }
+    }
+
+    catch (const std::length_error&)
+    {
+        qWarning() << "Message is too long";
+    }
+}
+
 ChatClient::~ChatClient()
 {
     try
@@ -134,21 +193,58 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
 				qWarning() << "Connection closed";
 				break;
 			}
-            if (message->type != MessageType::STC && message->type != MessageType::History)
+
+            switch (message->type)
+            {
+            case MessageType::CTS: case MessageType::History:
+            {
+                std::optional<HistoryMessage> nickNtextNtime = DecodeHistory(message->content);
+
+                if (!nickNtextNtime)
+                {
+                    qWarning() << "Malformed packet";
+                    continue;
+                }
+
+                emit messageReceived(QString::fromStdString(nickNtextNtime->nick), QString::fromStdString(nickNtextNtime->text), static_cast<qint64>(nickNtextNtime->timestamp), message->type == MessageType::History);
+
+                break;
+            }
+
+            case MessageType::CTSI:
+            {
+                std::optional<HistoryMessage> nickNtextNtime = DecodeHistory(message->content);
+
+                if (!nickNtextNtime)
+                {
+                    qWarning() << "Malformed packet";
+                    continue;
+                }
+
+                std::optional<QString> url = makeImageUrl(QByteArray::fromStdString(nickNtextNtime->text));
+
+                if (!url)
+                {
+                    qWarning() << "Invalid url";
+                    continue;
+                }
+
+                emit imageReceived(QString::fromStdString(nickNtextNtime->nick), *url, static_cast<qint64>(nickNtextNtime->timestamp), message->type == MessageType::History);
+            }
+
+            case MessageType::Handshake: case MessageType::Reject: case MessageType::STC:
+            case MessageType::Welcome:
             {
                 qWarning() << "Wrong message type";
-                continue;
+                break;
             }
 
-            std::optional<HistoryMessage> nickNtextNtime = DecodeHistory(message->content);
-
-            if (!nickNtextNtime)
+            default:
             {
-                qWarning() << "Malformed packet";
-                continue;
+                qWarning() << "Unknown message type";
+                break;
             }
-
-            emit messageReceived(QString::fromStdString(nickNtextNtime->nick), QString::fromStdString(nickNtextNtime->text), static_cast<qint64>(nickNtextNtime->timestamp), message->type == MessageType::History);
+            }
 		}
 	}
 
@@ -180,4 +276,42 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
 
 	isConnected = false;
 	emit disconnected();
+}
+
+std::optional<QString> ChatClient::makeImageUrl(const QByteArray& bytes)
+{
+    QBuffer buffer;
+    buffer.setData(bytes);
+    buffer.open(QIODeviceBase::ReadOnly);
+
+    QImageReader reader(&buffer);
+
+    QByteArray format(reader.format());
+
+    if (format.isEmpty())
+    {
+        qWarning() << "Image format is null";
+        return std::nullopt;
+    }
+
+    qDebug() << "Image size:" << bytes.size();
+    qDebug() << "First bytes:" << bytes.left(4).toHex(' ');
+    qDebug() << "Last bytes:" << bytes.right(4).toHex(' ');
+
+    QImage image = reader.read();
+
+    if (image.isNull())
+    {
+        qWarning() << "Failed to decode image: " << reader.errorString();
+        return std::nullopt;
+    }
+
+    if (image.width() > 8192 || image.height() > 8192 ||
+        image.width() <= 0 || image.height() <= 0)
+    {
+        qWarning() << "Image size is too big or invalid";
+        return std::nullopt;
+    }
+
+    return QString::fromLatin1("data:image/" + format + ";base64," + bytes.toBase64());
 }

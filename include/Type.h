@@ -6,7 +6,7 @@
 #include <optional>
 #include <stdexcept>
 
-inline constexpr uint8_t protocolVer = 3;
+inline constexpr uint8_t protocolVer = 4;
 
 enum class MessageType : uint8_t
 {
@@ -15,7 +15,9 @@ enum class MessageType : uint8_t
 	STC, // For sending text and sender from serv to client
 	History, // To prevent notifiactions spam from history
 	Welcome,
-	Reject
+	Reject,
+	CTSI,
+	STCI
 };
 
 enum class RejectType : uint8_t

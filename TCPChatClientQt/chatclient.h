@@ -4,6 +4,10 @@
 #include <QtQml/qqmlregistration.h>
 #include <atomic>
 #include <thread>
+#include <QFile>
+#include <QUrl>
+#include <QBuffer>
+#include <QImageReader>
 
 #include "WinsockInit.h"
 #include "Socket.h"
@@ -21,10 +25,14 @@ private:
 
     void receiveLoop(std::string address, std::string nickname);
 
+    std::optional<QString> makeImageUrl(const QByteArray& bytes);
+
 public:
     explicit ChatClient(QObject* parent = nullptr);
 
     Q_INVOKABLE void sendMessage(const QString &message);
+
+    Q_INVOKABLE void sendImage(const QUrl& url);
 
     ~ChatClient() override;
 
@@ -32,6 +40,7 @@ public:
 
 signals:
     void messageReceived(const QString& sender, const QString& text, qint64 timestamp, bool isHistory);
+    void imageReceived(const QString& sender, const QString& url, qint64 timestamp, bool isHistory);
 
     void connected();
     void disconnected();

@@ -3,6 +3,7 @@ import QtCore
 import QtQuick.Controls.Basic
 import "components"
 import TCPChatClientQt
+import QtQuick.Dialogs
 
 ApplicationWindow{
     id: appWindow
@@ -74,7 +75,7 @@ ApplicationWindow{
         entryScreen.isShowed = false
         appWindow.isAppShown = true
 
-        chatClient.connectToServer("92.114.54.182", nickname)
+        chatClient.connectToServer("127.0.0.1", nickname)
         messageSendArea.focusFieldChat()
     }
 
@@ -311,7 +312,8 @@ ApplicationWindow{
                 Action{
                     text: "Photo"
                     enabled: true
-                    // onTriggered:
+                    onTriggered: imageDialog.open()
+
                     property string iconName: "image"
                 }
                 Action{
@@ -331,6 +333,16 @@ ApplicationWindow{
                     enabled: true
                     // onTriggered:
                     property string iconName: "file"
+                }
+
+                FileDialog{
+                    id: imageDialog
+                    nameFilters: ["Images (*.png *.jpg *.jpeg *.webp)"]
+
+                    onAccepted: {
+                        rectChat.addImage(settings.nickname, selectedFile.toString(), Date.now(), true)
+                        chatClient.sendImage(selectedFile)
+                    }
                 }
             }
         }
@@ -428,7 +440,10 @@ ApplicationWindow{
 
     Connections{
         target: chatClient
-        function onMessageReceived(sender, text, timestamp, isHistory) {
+
+        function onMessageReceived(sender, text, timestamp, isHistory){
+
+            // sender, text, timestamp, mine
             rectChat.addMessage(sender, text, timestamp, settings.nickname === sender)
 
             if ((!appWindow.active) && appWindow.notified === false && isHistory === false)
@@ -440,6 +455,22 @@ ApplicationWindow{
                 appWindow.notified = true
             }
         }
+
+        function onImageReceived(sender, url, timestamp, isHistory){
+
+            // sender, url, timestamp, mine
+            rectChat.addImage(sender, url, timestamp, settings.nickname === sender)
+
+            if ((!appWindow.active) && appWindow.notified === false && isHistory === false)
+            {
+                appWindow.alert(0)
+
+                Notification.notify(sender, "image")
+
+                appWindow.notified = true
+            }
+        }
+
         function onConnected() {
             appWindow.connectionStatus = "Connected"
         }

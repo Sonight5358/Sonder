@@ -38,6 +38,8 @@ qt_add_qml_module(Sonder
         components/SendButton.qml
         components/ChatMenuMedia.qml
         components/ElementButtonPaperclip.qml
+        components/MessageDelegate.qml
+        components/ImageDelegate.qml
 
     SOURCES chatclient.h chatclient.cpp clipboard.h clipboard.cpp notification.h notification.cpp
 

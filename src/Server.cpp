@@ -81,15 +81,36 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 				std::cout << *name << " closed connection" << '\n';
 				break;
 			}
-			if (message->type != MessageType::CTS)
+			
+			switch (message->type)
+			{
+			case MessageType::CTS:
+			{
+				std::cout << *name << ": " << message->content << '\n';
+				list.Broadcast(Client, *name, message->content);
+				break;
+			}
+
+			case MessageType::CTSI:
+			{
+				std::cout << *name << ": image" << '\n';
+				list.BroadcastImage(Client, *name, message->content);
+				break;
+			}
+
+			case MessageType::Handshake: case MessageType::Reject: case MessageType::STC:
+			case MessageType::History: case MessageType::STCI: case MessageType::Welcome:
 			{
 				std::cerr << "Wrong message type" << '\n';
-				continue;
+				break;
 			}
-				
-			std::cout << *name << ": " << message->content << '\n';
 
-			list.Broadcast(Client, *name, message->content);
+			default:
+			{
+				std::cerr << "Unknown message type" << '\n';
+				break;
+			}
+			}
 		}
 	}
 

@@ -10,6 +10,7 @@
 
 inline constexpr size_t MaxNameLen = 128; // bytes
 inline constexpr uint32_t maxMessageSize = 64 * 1024; // 64kb
+inline constexpr uint32_t maxImageSize = maxMessageSize - 8 - 1 - MaxNameLen;
 
 inline void SendPacket(Socket& socket, MessageType type, std::string_view message)
 {	

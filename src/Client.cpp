@@ -39,6 +39,12 @@ void ReceiveThread(Socket& ConnectionSocket, std::atomic<bool>& connected)
 					continue;
 				}
 
+				if (message->type == MessageType::STCI)
+				{
+					std::cout << nickNtextNtime->nick << ": " << "image"
+						<< " (" << nickNtextNtime->timestamp << ')' << '\n';
+				}
+
 				std::cout << nickNtextNtime->nick << ": " << nickNtextNtime->text 
 					<< " (" << nickNtextNtime->timestamp << ')' << '\n';
 			}

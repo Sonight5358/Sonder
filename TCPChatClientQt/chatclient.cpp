@@ -77,16 +77,17 @@ void ChatClient::sendImage(const QUrl& url)
 
         QByteArray data = file.readAll();
 
+        std::optional<UrlNSize> urlNsize = makeImageUrl(data);
+
+        if (!urlNsize)
+        {
+            qWarning() << "Invalid url";
+            return;
+        }
+
         SendPacket(clientSocket, MessageType::CTSI, std::string_view(data.constData(), static_cast<size_t>(data.size())));
 
-        //std::optional<QString> url = makeImageUrl(QByteArray::fromStdString(data.constData()));
-
-        //if (!url)
-        //{
-        //    qWarning() << "Invalid url";
-        //}
-
-        //emit imageReceived(QString::fromStdString(nickname), *url, static_cast<qint64>(nickNtextNtime->timestamp), message->type == MessageType::History);
+        emit imageSent(urlNsize->url, urlNsize->size);
     }
 
     catch (const SocketError& e)
@@ -221,15 +222,15 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
                     continue;
                 }
 
-                std::optional<QString> url = makeImageUrl(QByteArray::fromStdString(nickNtextNtime->text));
+                std::optional<UrlNSize> urlNsize = makeImageUrl(QByteArray::fromStdString(nickNtextNtime->text));
 
-                if (!url)
+                if (!urlNsize)
                 {
                     qWarning() << "Invalid url";
                     continue;
                 }
 
-                emit imageReceived(QString::fromStdString(nickNtextNtime->nick), *url, static_cast<qint64>(nickNtextNtime->timestamp), message->type == MessageType::History);
+                emit imageReceived(QString::fromStdString(nickNtextNtime->nick), urlNsize->url, static_cast<qint64>(nickNtextNtime->timestamp), message->type == MessageType::History, urlNsize->size);
             }
 
             case MessageType::Handshake: case MessageType::Reject: case MessageType::STC:
@@ -278,7 +279,7 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
 	emit disconnected();
 }
 
-std::optional<QString> ChatClient::makeImageUrl(const QByteArray& bytes)
+std::optional<UrlNSize> ChatClient::makeImageUrl(const QByteArray& bytes)
 {
     QBuffer buffer;
     buffer.setData(bytes);
@@ -293,10 +294,6 @@ std::optional<QString> ChatClient::makeImageUrl(const QByteArray& bytes)
         qWarning() << "Image format is null";
         return std::nullopt;
     }
-
-    qDebug() << "Image size:" << bytes.size();
-    qDebug() << "First bytes:" << bytes.left(4).toHex(' ');
-    qDebug() << "Last bytes:" << bytes.right(4).toHex(' ');
 
     QImage image = reader.read();
 
@@ -313,5 +310,7 @@ std::optional<QString> ChatClient::makeImageUrl(const QByteArray& bytes)
         return std::nullopt;
     }
 
-    return QString::fromLatin1("data:image/" + format + ";base64," + bytes.toBase64());
+    QString url(QString::fromLatin1("data:image/" + format + ";base64," + bytes.toBase64()));
+
+    return UrlNSize{ url, reader.size() };
 }

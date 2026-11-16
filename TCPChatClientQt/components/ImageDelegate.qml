@@ -11,17 +11,21 @@ Item{
     required property bool isMine
     required property int index
     required property string imageSource
+    required property int imageWidht
+    required property int imageHeight
+
+    readonly property real dpr: Screen.devicePixelRatio
 
     readonly property bool highlighted: hoverHandler.hovered
         || (chatMenu.visible && root.menuIndex === index)
 
-    height: column.implicitHeight
+    height: Math.ceil(column.implicitHeight)
     width: ListView.view.width
 
     Column{
         id: column
 
-        anchors.fill: parent
+        width: parent.width
 
         spacing: 1
 
@@ -35,24 +39,84 @@ Item{
             color: root.colorNick(delegateRoot.nick)
 
             width: Math.min(implicitWidth, delegateRoot.maxContentWidth)
+            height: Math.ceil(implicitHeight)
+
             elide: Text.ElideRight
 
             visible: !delegateRoot.isMine
         }
 
         Item{
-            width: column.width
-            height: photoFrame.height + 2
+            id: photoFrame
+
+            width: Math.round(Math.min(delegateRoot.imageWidht / dpr, delegateRoot.maxContentWidth))
+            height:  Math.round(delegateRoot.imageHeight * width / delegateRoot.imageWidht)
+
+            x: delegateRoot.isMine ? delegateRoot.width - width - 16 : 16
+
 
             RectangularShadow{
                 id: rectShadow
 
-                anchors.fill: delegateBottom
+                anchors.fill: photoFrame
 
-                radius: delegateBottom.radius
+                radius: windowsRadius
                 blur: 20
                 spread: 1
                 color: Qt.rgba(0, 0, 0, opacityPanels - 0.15)
+            }
+
+            Image{
+                id: photo
+
+                anchors.fill: parent
+                anchors.margins: 1
+
+                source: delegateRoot.imageSource
+                sourceSize: Qt.size(width * dpr, height * dpr)
+                fillMode: Image.PreserveAspectCrop
+
+                layer.enabled: true
+                layer.smooth: true
+
+                visible: false
+            }
+
+            Rectangle{
+                id: roundedMask
+
+                anchors.fill: parent
+                anchors.margins: 1
+
+                radius: windowsRadius - 1
+                color: "white"
+                antialiasing: true
+
+                layer.enabled: true
+                layer.smooth: true
+
+                visible: false
+            }
+
+            MultiEffect{
+                anchors.fill: parent
+                anchors.margins: 1
+
+                source: photo
+                maskEnabled: true
+                maskSource: roundedMask
+            }
+
+            Text{
+                text: Qt.formatTime(new Date(timeStamp), "hh:mm")
+
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 4
+                anchors.right: parent.right
+                anchors.rightMargin: 8
+
+                font: appTimeFont
+                color: Qt.alpha(textColor, 0.7)
             }
 
             Rectangle{
@@ -70,10 +134,7 @@ Item{
                     }
                 }
 
-                width: photoFrame.width + 2
-                height: photoFrame.height + 2
-
-                x: delegateRoot.isMine ? delegateRoot.width - width - 16 : 16
+                anchors.fill: parent
 
                 color: "transparent"
                 radius: windowsRadius
@@ -87,64 +148,6 @@ Item{
                         duration: 150
                         easing.type: Easing.OutCubic
                     }
-                }
-            }
-
-            Item{
-                id: photoFrame
-
-                width: photo.implicitWidth > 0 ? Math.min(photo.implicitWidth, delegateRoot.maxContentWidth) : 0
-                height: photo.implicitWidth > 0 ? photo.implicitHeight * width / photo.implicitWidth : 0
-
-                x: delegateBottom.x + 1
-                y: 1
-
-                Image{
-                    id: photo
-
-                    anchors.fill: parent
-                    source: delegateRoot.imageSource
-                    fillMode: Image.PreserveAspectFit
-
-                    layer.enabled: true
-                    layer.smooth: true
-
-                    visible: false
-                }
-
-                Rectangle{
-                    id: roundedMask
-
-                    anchors.fill: parent
-
-                    radius: 10
-                    color: "white"
-                    antialiasing: true
-
-                    layer.enabled: true
-                    layer.smooth: true
-
-                    visible: false
-                }
-
-                MultiEffect{
-                    anchors.fill: parent
-
-                    source: photo
-                    maskEnabled: true
-                    maskSource: roundedMask
-                }
-
-                Text{
-                    text: Qt.formatTime(new Date(timeStamp), "hh:mm")
-
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 4
-                    anchors.right: parent.right
-                    anchors.rightMargin: 8
-
-                    font: appTimeFont
-                    color: Qt.alpha(textColor, 0.7)
                 }
             }
         }

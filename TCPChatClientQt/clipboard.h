@@ -13,4 +13,8 @@ public:
     explicit Clipboard(QObject* parent = nullptr);
 
     Q_INVOKABLE void setText(const QString &text);
+
+    //Q_INVOKABLE bool hasImage() const;
+    //Q_INVOKABLE QByteArray getImage() const;
+    //Q_INVOKABLE bool setImage(const QString &path);
 };

@@ -12,6 +12,12 @@
 #include "WinsockInit.h"
 #include "Socket.h"
 
+struct UrlNSize
+{
+    QString url;
+    QSize size;
+};
+
 class ChatClient : public QObject
 {
     Q_OBJECT
@@ -25,7 +31,7 @@ private:
 
     void receiveLoop(std::string address, std::string nickname);
 
-    std::optional<QString> makeImageUrl(const QByteArray& bytes);
+    std::optional<UrlNSize> makeImageUrl(const QByteArray& bytes);
 
 public:
     explicit ChatClient(QObject* parent = nullptr);
@@ -40,7 +46,8 @@ public:
 
 signals:
     void messageReceived(const QString& sender, const QString& text, qint64 timestamp, bool isHistory);
-    void imageReceived(const QString& sender, const QString& url, qint64 timestamp, bool isHistory);
+    void imageReceived(const QString& sender, const QString& url, qint64 timestamp, bool isHistory, const QSize size);
+    void imageSent(const QString& url, const QSize size);
 
     void connected();
     void disconnected();

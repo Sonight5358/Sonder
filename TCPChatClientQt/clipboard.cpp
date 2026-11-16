@@ -12,3 +12,5 @@ void Clipboard::setText(const QString &text)
     QClipboard* clipboard = QGuiApplication::clipboard();
     clipboard->setText(text);
 }
+
+//QByteArray Clipboard::getImage() const

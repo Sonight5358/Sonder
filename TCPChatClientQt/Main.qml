@@ -340,7 +340,6 @@ ApplicationWindow{
                     nameFilters: ["Images (*.png *.jpg *.jpeg *.webp)"]
 
                     onAccepted: {
-                        rectChat.addImage(settings.nickname, selectedFile.toString(), Date.now(), true)
                         chatClient.sendImage(selectedFile)
                     }
                 }
@@ -442,7 +441,6 @@ ApplicationWindow{
         target: chatClient
 
         function onMessageReceived(sender, text, timestamp, isHistory){
-
             // sender, text, timestamp, mine
             rectChat.addMessage(sender, text, timestamp, settings.nickname === sender)
 
@@ -456,10 +454,9 @@ ApplicationWindow{
             }
         }
 
-        function onImageReceived(sender, url, timestamp, isHistory){
-
-            // sender, url, timestamp, mine
-            rectChat.addImage(sender, url, timestamp, settings.nickname === sender)
+        function onImageReceived(sender, url, timestamp, isHistory, size){
+            // sender, url, timestamp, mine, width, height
+            rectChat.addImage(sender, url, timestamp, settings.nickname === sender, size.width, size.height)
 
             if ((!appWindow.active) && appWindow.notified === false && isHistory === false)
             {
@@ -469,6 +466,10 @@ ApplicationWindow{
 
                 appWindow.notified = true
             }
+        }
+
+        function onImageSent(url, size){
+            rectChat.addImage(settings.nickname, url, Date.now(), true, size.width, size.height)
         }
 
         function onConnected() {

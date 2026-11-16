@@ -44,11 +44,11 @@ Item{
 
     function addMessage(sender, text, timestamp, mine){
         messageModel.insert(0, {nick: sender, messageText: text, timeStamp: timestamp, isMine: mine,
-                                isImage: false, imageSource: ""})
+                                isImage: false, imageWidht: 0, imageHeight: 0})
     }
-    function addImage(sender, url, timestamp, mine){
+    function addImage(sender, url, timestamp, mine, width, height){
         messageModel.insert(0, {nick: sender, imageSource: url, timeStamp: timestamp, isMine: mine,
-                            messageText: "", isImage: true})
+                            messageText: "", isImage: true, imageWidht: width, imageHeight: height})
     }
 
     function deleteMessage(i){
@@ -83,10 +83,6 @@ Item{
 
         onClosed: {
             const item = entireChat.itemAtIndex(root.menuIndex)
-            if (item){
-                item.unselectFade()
-            }
-
 
             root.menuIndex = -1
             chatMenu.textSelected = ""
@@ -272,30 +268,6 @@ Item{
         DelegateChoice{
             roleValue: false
             delegate: MessageDelegate {}
-        }
-    }
-
-    Component{
-        id: messageDelegate
-
-        MessageDelegate{
-            nick: loader.nick
-            timeStamp: loader.timeStamp
-            isMine: loader.isMine
-            index: loader.index
-            messageText: loader.messageText
-        }
-    }
-
-    Component{
-        id: imageDelegate
-
-        ImageDelegate{
-            nick: loader.nick
-            timeStamp: loader.timeStamp
-            isMine: loader.isMine
-            index: loader.index
-            imageSource: loader.imageSource
         }
     }
 }

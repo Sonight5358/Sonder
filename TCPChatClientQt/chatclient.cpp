@@ -49,7 +49,40 @@ void ChatClient::sendMessage(const QString &message)
     }
 }
 
-void ChatClient::sendImage(const QUrl& url)
+void ChatClient::stageImage(const QUrl& url)
+{
+    QFile file(url.toLocalFile());
+
+    if (file.size() > maxImageSize)
+    {
+        qWarning() << "Image is too big";
+        return;
+    }
+
+    bool result = file.open(QIODevice::ReadOnly);
+
+    if (result == false)
+    {
+        qWarning() << "Image cant be opened";
+        return;
+    }
+
+    QByteArray data = file.readAll();
+
+    std::optional<UrlNSize> urlNsize = makeImageUrl(data);
+
+    if (!urlNsize)
+    {
+        qWarning() << "Invalid url";
+        return;
+    }
+
+    staged = data;
+
+    emit stageChanged(urlNsize->url, urlNsize->size);
+}
+
+void ChatClient::sendStaged()
 {
     if (isConnected == false)
     {
@@ -57,27 +90,15 @@ void ChatClient::sendImage(const QUrl& url)
         return;
     }
 
+    if (staged.isEmpty())
+    {
+        emit stageFailed("Staged is empty");
+        return;
+    }
+
     try
     {
-        QFile file(url.toLocalFile());
-
-        if (file.size() > maxImageSize)
-        {
-            qWarning() << "Image is too big";
-            return;
-        }
-
-        bool result = file.open(QIODevice::ReadOnly);
-
-        if (result == false)
-        {
-            qWarning() << "Image cant be opened";
-            return;
-        }
-
-        QByteArray data = file.readAll();
-
-        std::optional<UrlNSize> urlNsize = makeImageUrl(data);
+        std::optional<UrlNSize> urlNsize = makeImageUrl(staged);
 
         if (!urlNsize)
         {
@@ -85,9 +106,11 @@ void ChatClient::sendImage(const QUrl& url)
             return;
         }
 
-        SendPacket(clientSocket, MessageType::CTSI, std::string_view(data.constData(), static_cast<size_t>(data.size())));
+        SendPacket(clientSocket, MessageType::CTSI, std::string_view(staged.constData(), static_cast<size_t>(staged.size())));
 
         emit imageSent(urlNsize->url, urlNsize->size);
+        staged.clear();
+        emit stageChanged("", QSize());
     }
 
     catch (const SocketError& e)
@@ -107,6 +130,18 @@ void ChatClient::sendImage(const QUrl& url)
     {
         qWarning() << "Message is too long";
     }
+}
+
+void ChatClient::clearStaged()
+{
+    if (staged.isEmpty())
+    {
+        emit stageFailed("Staged is empty");
+        return;
+    }
+
+    staged.clear();
+    emit stageChanged("", QSize());
 }
 
 ChatClient::~ChatClient()

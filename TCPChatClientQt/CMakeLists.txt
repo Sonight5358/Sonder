@@ -40,6 +40,7 @@ qt_add_qml_module(Sonder
         components/ElementButtonPaperclip.qml
         components/MessageDelegate.qml
         components/ImageDelegate.qml
+        components/RoundedImage.qml
 
     SOURCES chatclient.h chatclient.cpp clipboard.h clipboard.cpp notification.h notification.cpp
 
@@ -58,7 +59,8 @@ qt_add_qml_module(Sonder
         assets/icons/image.svg
         assets/icons/headphones.svg
         assets/icons/video.svg
-        assets/sonder.ico
+        assets/icons/x.svg
+        assets/sonder.ico 
 )
 
 qt_add_shaders(Sonder "app_shaders"

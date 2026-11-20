@@ -77,6 +77,7 @@ ApplicationWindow{
 
         chatClient.connectToServer("127.0.0.1", nickname)
         messageSendArea.focusFieldChat()
+        messageSendArea.resetScroll()
     }
 
     onActiveChanged: {
@@ -217,6 +218,7 @@ ApplicationWindow{
         opacityMenu: appWindow.opacityMenu
         isAppShown: appWindow.isAppShown
         startupDuration: appWindow.startupDuration
+        windowsRadius: appWindow.windowsRadius
 
         transform: Translate{
             y: appWindow.isAppShown ? 0 : (messageSendArea.height * 2 + appWindow.marginEl)
@@ -233,17 +235,23 @@ ApplicationWindow{
             sendButton.startSend()
         }
 
+        onSendStagedRequested: function(url){
+            chatClient.sendStaged()
+        }
+
         SendButton{
             id: sendButton
 
-            onClicked: messageSendArea.send()
+            onClicked: {
+                messageSendArea.send()
+            }
 
             anchors.bottom:messageSendArea.bottom
             anchors.bottomMargin: (messageSendArea.minHeight - height) / 2
             anchors.right: messageSendArea.right
             anchors.rightMargin: (messageSendArea.minHeight - height) / 2
 
-            isEmpty: messageSendArea.isEmpty
+            isEmpty: !messageSendArea.canSend
             mainColor: appWindow.mainColor
             textColor: appWindow.textColor
             opacityMenu: appWindow.opacityMenu
@@ -340,7 +348,7 @@ ApplicationWindow{
                     nameFilters: ["Images (*.png *.jpg *.jpeg *.webp)"]
 
                     onAccepted: {
-                        chatClient.sendImage(selectedFile)
+                        chatClient.stageImage(selectedFile)
                     }
                 }
             }
@@ -465,6 +473,13 @@ ApplicationWindow{
                 Notification.notify(sender, "image")
 
                 appWindow.notified = true
+            }
+        }
+
+        function onStageChanged(url, size){
+            messageSendArea.stagedUrl = url
+            if (messageSendArea.stagedUrl !== ""){
+                messageSendArea.shownUrl = messageSendArea.stagedUrl
             }
         }
 

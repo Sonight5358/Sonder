@@ -11,10 +11,8 @@ Item{
     required property bool isMine
     required property int index
     required property string imageSource
-    required property int imageWidht
+    required property int imageWidth
     required property int imageHeight
-
-    readonly property real dpr: Screen.devicePixelRatio
 
     readonly property bool highlighted: hoverHandler.hovered
         || (chatMenu.visible && root.menuIndex === index)
@@ -46,66 +44,16 @@ Item{
             visible: !delegateRoot.isMine
         }
 
-        Item{
+        RoundedImage{
             id: photoFrame
 
-            width: Math.round(Math.min(delegateRoot.imageWidht / dpr, delegateRoot.maxContentWidth))
-            height:  Math.round(delegateRoot.imageHeight * width / delegateRoot.imageWidht)
+            source: delegateRoot.imageSource
+            radius: windowsRadius
+
+            width: Math.round(Math.min(delegateRoot.imageWidth / dpr, delegateRoot.maxContentWidth))
+            height:  Math.round(delegateRoot.imageHeight * width / delegateRoot.imageWidth)
 
             x: delegateRoot.isMine ? delegateRoot.width - width - 16 : 16
-
-
-            RectangularShadow{
-                id: rectShadow
-
-                anchors.fill: photoFrame
-
-                radius: windowsRadius
-                blur: 20
-                spread: 1
-                color: Qt.rgba(0, 0, 0, opacityPanels - 0.15)
-            }
-
-            Image{
-                id: photo
-
-                anchors.fill: parent
-                anchors.margins: 1
-
-                source: delegateRoot.imageSource
-                sourceSize: Qt.size(width * dpr, height * dpr)
-                fillMode: Image.PreserveAspectCrop
-
-                layer.enabled: true
-                layer.smooth: true
-
-                visible: false
-            }
-
-            Rectangle{
-                id: roundedMask
-
-                anchors.fill: parent
-                anchors.margins: 1
-
-                radius: windowsRadius - 1
-                color: "white"
-                antialiasing: true
-
-                layer.enabled: true
-                layer.smooth: true
-
-                visible: false
-            }
-
-            MultiEffect{
-                anchors.fill: parent
-                anchors.margins: 1
-
-                source: photo
-                maskEnabled: true
-                maskSource: roundedMask
-            }
 
             Text{
                 text: Qt.formatTime(new Date(timeStamp), "hh:mm")
@@ -134,7 +82,7 @@ Item{
                     }
                 }
 
-                anchors.fill: parent
+                anchors.fill: photoFrame
 
                 color: "transparent"
                 radius: windowsRadius

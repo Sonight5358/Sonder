@@ -22,12 +22,13 @@ class ChatClient : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
-
 private:
     WinsockInit winsock;
     Socket clientSocket;
     std::thread clientThread;
     std::atomic<bool> isConnected = false;
+
+    QByteArray staged;
 
     void receiveLoop(std::string address, std::string nickname);
 
@@ -38,7 +39,11 @@ public:
 
     Q_INVOKABLE void sendMessage(const QString &message);
 
-    Q_INVOKABLE void sendImage(const QUrl& url);
+    Q_INVOKABLE void stageImage(const QUrl& url);
+
+    Q_INVOKABLE void sendStaged();
+
+    Q_INVOKABLE void clearStaged();
 
     ~ChatClient() override;
 
@@ -48,6 +53,9 @@ signals:
     void messageReceived(const QString& sender, const QString& text, qint64 timestamp, bool isHistory);
     void imageReceived(const QString& sender, const QString& url, qint64 timestamp, bool isHistory, const QSize size);
     void imageSent(const QString& url, const QSize size);
+
+    void stageChanged(const QString& url, const QSize size);
+    void stageFailed(const QString& reason);
 
     void connected();
     void disconnected();

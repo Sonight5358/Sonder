@@ -19,11 +19,16 @@ Item{
     property double opacityMenu
     property font appSmallFont
     property double rightContentMargin
+    property string stagedUrl
+    property int windowsRadius
+    property string shownUrl
+    readonly property int textPadding: 8
     readonly property bool highlighted: hoverHandler.hovered
                                         || messageField.activeFocus
                                         || contextMenu.visible
-    readonly property double contentHeight: Math.max(minHeight, Math.min(200, messageField.implicitHeight +
-    flick.anchors.topMargin + flick.anchors.bottomMargin))
+    readonly property double contentHeight: messageHeight + (photoFrame.visible ? photoFrame.height + photoFrame.anchors.topMargin : 0)
+    readonly property double messageHeight: Math.max(minHeight, Math.min(200, messageField.implicitHeight + textPadding * 2))
+    readonly property bool canSend: !isEmpty || stagedUrl !== ""
 
     property bool isAppShown
     property int startupDuration
@@ -33,12 +38,13 @@ Item{
 
     Behavior on opacity{
         NumberAnimation{
-            duration:  startupDuration
+            duration: startupDuration
             easing.type: Easing.OutCubic
         }
     }
 
     signal sendRequested(string message)
+    signal sendStagedRequested(string url)
     signal toButton()
 
     onHighlightedChanged: {
@@ -53,23 +59,32 @@ Item{
     }
 
     function send(){
-        if (isEmpty){
+        if (isEmpty && stagedUrl === ""){
             return
         }
 
-        sendRequested(messageField.text)
-        messageField.clear()
+        if(isEmpty === false){
+            sendRequested(messageField.text)
+            messageField.clear()
+        }
+
+        if(stagedUrl !== ""){
+            sendStagedRequested(root.stagedUrl)
+        }
     }
 
     function focusFieldChat(){
         messageField.forceActiveFocus()
     }
 
+    function resetScroll(){
+        flick.contentY = 0
+    }
+
     RectangularShadow{
         id: rectShadow
 
         anchors.fill: parent
-
 
         radius: rectBottom.radius
         blur: 25
@@ -86,7 +101,8 @@ Item{
 
     Behavior on height{
         NumberAnimation{
-            duration: 75
+            duration: 100
+            easing.type: Easing.OutCubic
         }
     }
 
@@ -115,6 +131,113 @@ Item{
             radius: rectBottom.radius - marginChatsField
         }
 
+        RoundedImage{
+            id: photoFrame
+
+            visible: opacity > 0
+
+            anchors.top: parent.top
+            anchors.topMargin: 8
+
+            anchors.left: parent.left
+            anchors.leftMargin: 54
+
+            source: shownUrl
+            radius: windowsRadius
+            isShadow: false
+
+            width: 100
+            height: 100
+
+            opacity: 0
+            scale: 0.9
+
+            states: State{
+                name: "open"
+                when: stagedUrl !== ""
+
+                PropertyChanges{
+                    target: photoFrame
+                    opacity: 1
+                    scale: 1
+                }
+            }
+
+            transitions: [
+                Transition{
+                    to: "open"
+                    NumberAnimation{
+                        properties: "opacity, scale"
+                        duration: 200
+                        easing.type: Easing.OutCubic
+                    }
+                },
+
+                Transition{
+                    from: "open"
+                    SequentialAnimation{
+                        NumberAnimation{
+                            properties: "opacity, scale"
+                            duration: 200
+                            easing.type: Easing.InCubic
+                        }
+
+                        ScriptAction {
+                            script: shownUrl = ""
+                        }
+                    }
+                }
+            ]
+
+            ElementButton{
+                id: xButton
+
+                anchors.top: parent.top
+                anchors.topMargin: 4
+
+                anchors.right: parent.right
+                anchors.rightMargin: 4
+
+                mainColor: root.mainColor
+                textColor: root.textColor
+                borderColor: root.borderColor
+                opacityMenu: root.opacityMenu
+                appSmallFont: root.appSmallFont
+                borderIdleOpacity: root.borderIdleOpacity
+                iconSize: 12
+
+                size: 22
+                radiusButton: size / 2
+                iconName: "x"
+                tooltipText: "Close"
+
+                opacity: hovered ? 1.0 : 0.75
+
+                Behavior on opacity{
+                    NumberAnimation{
+                        duration: 200
+                        easing.type: Easing.OutCubic
+                    }
+                }
+
+                onClicked: {
+                    chatClient.clearStaged()
+                }
+            }
+
+            Rectangle{
+                id: delegateBottom
+
+                anchors.fill: photoFrame
+
+                color: "transparent"
+                radius: windowsRadius
+
+                border.width: 1
+                border.color: Qt.alpha(borderColor, borderIdleOpacity)
+            }
+        }
+
         Flickable{
             id: flick
 
@@ -123,11 +246,10 @@ Item{
             anchors.right: parent.right
             anchors.rightMargin: rightContentMargin
 
-            anchors.top: parent.top
-            anchors.topMargin: 8
-
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 8
+            anchors.bottomMargin: textPadding
+
+            height: messageHeight - textPadding * 2
 
             clip: true
             boundsBehavior: Flickable.StopAtBounds

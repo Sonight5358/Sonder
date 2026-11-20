@@ -44,11 +44,11 @@ Item{
 
     function addMessage(sender, text, timestamp, mine){
         messageModel.insert(0, {nick: sender, messageText: text, timeStamp: timestamp, isMine: mine,
-                                isImage: false, imageWidht: 0, imageHeight: 0})
+                                isImage: false, imageWidth: 0, imageHeight: 0})
     }
     function addImage(sender, url, timestamp, mine, width, height){
         messageModel.insert(0, {nick: sender, imageSource: url, timeStamp: timestamp, isMine: mine,
-                            messageText: "", isImage: true, imageWidht: width, imageHeight: height})
+                            messageText: "", isImage: true, imageWidth: width, imageHeight: height})
     }
 
     function deleteMessage(i){
@@ -79,11 +79,9 @@ Item{
         appTextFont: root.appTextFont
         appSmallFont: root.appSmallFont
 
-        implicitWidth: 180
+        implicitWidth: 220
 
         onClosed: {
-            const item = entireChat.itemAtIndex(root.menuIndex)
-
             root.menuIndex = -1
             chatMenu.textSelected = ""
         }
@@ -91,18 +89,29 @@ Item{
         Action{
             text: chatMenu.textSelected !== "" ? "Copy selection" : "Copy"
             onTriggered: {
-                if (chatMenu.textSelected.length > 0){
-                    Clipboard.setText(chatMenu.textSelected)
+                const item = messageModel.get(root.menuIndex)
+                //const item = entireChat.itemAtIndex(root.menuIndex)
+
+
+                if (item.isImage){
+                    Clipboard.setImage(item.imageSource)
                 }
+
                 else{
-                    Clipboard.setText(messageModel.get(root.menuIndex).messageText)
+                    if (chatMenu.textSelected.length > 0){
+                        Clipboard.setText(chatMenu.textSelected)
+                    }
+
+                    else{
+                        Clipboard.setText(messageModel.get(root.menuIndex).messageText)
+                    }
                 }
             }
 
             property string iconName: "copy"
         }
         Action{
-            text: "Delete"
+            text: "Delete for yourself"
             onTriggered: root.deleteMessage(root.menuIndex)
             property string iconName: "trash"
         }
@@ -154,7 +163,7 @@ Item{
 
             header: Item{
                 width: entireChat.width
-                height: root.sendAreaHeight + 12
+                height: root.sendAreaHeight + 12 + root.stagedHeight
             }
 
             footer: Item{

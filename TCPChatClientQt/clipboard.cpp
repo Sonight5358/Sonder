@@ -13,8 +13,6 @@ void Clipboard::setText(const QString& text)
     clipboard->setText(text);
 }
 
-//QByteArray Clipboard::getImage() const
-
 bool Clipboard::setImage(const QString& url)
 {
     int afterComma = url.indexOf(',') + 1;
@@ -30,5 +28,11 @@ bool Clipboard::setImage(const QString& url)
 
     QClipboard* clipboard = QGuiApplication::clipboard();
     clipboard->setImage(image);
+
     return true;
+}
+
+bool Clipboard::hasImage() const
+{
+    return QGuiApplication::clipboard()->mimeData()->hasImage();
 }

@@ -8,6 +8,8 @@
 #include <QUrl>
 #include <QBuffer>
 #include <QImageReader>
+#include <QGuiApplication>
+#include <QClipboard>
 
 #include "WinsockInit.h"
 #include "Socket.h"
@@ -32,6 +34,8 @@ private:
 
     void receiveLoop(std::string address, std::string nickname);
 
+    void stageBytes(const QByteArray& bytes);
+
     std::optional<UrlNSize> makeImageUrl(const QByteArray& bytes);
 
 public:
@@ -40,6 +44,8 @@ public:
     Q_INVOKABLE void sendMessage(const QString &message);
 
     Q_INVOKABLE void stageImage(const QUrl& url);
+
+    Q_INVOKABLE bool stageClipboard();
 
     Q_INVOKABLE void sendStaged();
 

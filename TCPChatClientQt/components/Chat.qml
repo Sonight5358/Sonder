@@ -44,7 +44,7 @@ Item{
 
     function addMessage(sender, text, timestamp, mine){
         messageModel.insert(0, {nick: sender, messageText: text, timeStamp: timestamp, isMine: mine,
-                                isImage: false, imageWidth: 0, imageHeight: 0})
+                                isImage: false, imageWidth: 0, imageHeight: 0, imageSource: ""})
     }
     function addImage(sender, url, timestamp, mine, width, height){
         messageModel.insert(0, {nick: sender, imageSource: url, timeStamp: timestamp, isMine: mine,
@@ -163,7 +163,7 @@ Item{
 
             header: Item{
                 width: entireChat.width
-                height: root.sendAreaHeight + 12 + root.stagedHeight
+                height: root.sendAreaHeight + 12
             }
 
             footer: Item{
@@ -245,6 +245,8 @@ Item{
 
             ScrollBar.vertical: ScrollBar{
                 id: sbar
+
+                visible: sbar.size < 1.0
 
                 contentItem: Rectangle{
                     implicitWidth: 4

@@ -69,7 +69,12 @@ void ChatClient::stageImage(const QUrl& url)
 
     QByteArray data = file.readAll();
 
-    std::optional<UrlNSize> urlNsize = makeImageUrl(data);
+    stageBytes(data);
+}
+
+void ChatClient::stageBytes(const QByteArray& bytes)
+{
+    std::optional<UrlNSize> urlNsize = makeImageUrl(bytes);
 
     if (!urlNsize)
     {
@@ -77,9 +82,43 @@ void ChatClient::stageImage(const QUrl& url)
         return;
     }
 
-    staged = data;
+    staged = bytes;
 
     emit stageChanged(urlNsize->url, urlNsize->size);
+}
+
+bool ChatClient::stageClipboard()
+{
+    QImage image = QGuiApplication::clipboard()->image();
+
+    if (image.isNull())
+    {
+        return false;
+    }
+
+    QByteArray bytes;
+
+    QBuffer buffer(&bytes);
+    buffer.open(QIODevice::WriteOnly);
+
+    image.save(&buffer, "PNG");
+    if (bytes.size() > maxImageSize)
+    {
+        bytes.clear();
+        buffer.seek(0);
+        image.save(&buffer, "JPEG", 80);
+
+        if (bytes.size() > maxImageSize)
+        {
+            emit stageFailed("Image is too big");
+            return true;
+        }
+    }
+
+    buffer.close();
+    stageBytes(bytes);
+
+    return true;
 }
 
 void ChatClient::sendStaged()
@@ -330,6 +369,14 @@ std::optional<UrlNSize> ChatClient::makeImageUrl(const QByteArray& bytes)
         return std::nullopt;
     }
 
+    QSize size = reader.size();
+
+    if (size.isNull())
+    {
+        qWarning() << "Size is null";
+        return std::nullopt;
+    }
+
     QImage image = reader.read();
 
     if (image.isNull())
@@ -347,5 +394,5 @@ std::optional<UrlNSize> ChatClient::makeImageUrl(const QByteArray& bytes)
 
     QString url(QString::fromLatin1("data:image/" + format + ";base64," + bytes.toBase64()));
 
-    return UrlNSize{ url, reader.size() };
+    return UrlNSize{ url, size };
 }

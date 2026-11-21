@@ -257,7 +257,7 @@ Item{
             ScrollBar.vertical: ScrollBar{
                 id: sbar
 
-                visible: root.height > root.minHeight
+                visible: sbar.size < 1.0
 
                 contentItem: Rectangle{
                     implicitWidth: 4
@@ -345,8 +345,12 @@ Item{
                     Action{
                         text: "Paste"
                         property string shortcutText: "Ctrl+V"
-                        enabled: messageField.canPaste
-                        onTriggered: messageField.paste()
+                        enabled: messageField.canPaste || Clipboard.hasImage()
+                        onTriggered: {
+                            if (!chatClient.stageClipboard()){
+                                messageField.paste()
+                            }
+                        }
                         property string iconName: "clipboard"
                     }
                     Action{
@@ -359,6 +363,10 @@ Item{
                 }
 
                 Keys.onPressed: function(event){
+                    if (event.matches(StandardKey.Paste) && chatClient.stageClipboard()){
+                        event.accepted = true
+                        return
+                    }
                     if (event.key !== Qt.Key_Return && event.key !== Qt.Key_Enter){
                         return
                     }
@@ -366,7 +374,7 @@ Item{
                         return
                     }
                     event.accepted = true
-                    if(!root.isEmpty){
+                    if(root.canSend){
                         root.toButton()
                         root.send()
                     }

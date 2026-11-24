@@ -59,7 +59,7 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 			return;
 		}
 
-		Client->Send("", MessageType::Welcome);
+		Client->Send(EncodeUint32(Client->GetId()), MessageType::Welcome);
 
 		// Copy of history from ClientList
 		std::deque<HistoryMessage> hist = list.Add(Client);
@@ -210,8 +210,10 @@ int main()
 					true
 				);
 
+				uint32_t id = clist.NextId();
+
 				// New shared_ptr for every client
-				std::shared_ptr<Connection> NewClient = std::make_shared<Connection>(std::move(ConnectionSocketOp.value()));
+				std::shared_ptr<Connection> NewClient = std::make_shared<Connection>(std::move(ConnectionSocketOp.value()), id);
 
 				// Thread for receiving messages from client
 				std::thread NewThread(ReceiveThread, std::move(NewClient), std::ref(clist));

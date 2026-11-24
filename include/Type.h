@@ -6,7 +6,7 @@
 #include <optional>
 #include <stdexcept>
 
-inline constexpr uint8_t protocolVer = 4;
+inline constexpr uint8_t protocolVer = 5;
 
 enum class MessageType : uint8_t
 {
@@ -215,4 +215,33 @@ inline std::optional<HistoryMessage> DecodeHistory(std::string_view str)
 	HistoryMessage out = { std::move(otherNNT->nick), std::move(otherNNT->text), timeDec->time };
 
 	return out;
+}
+
+inline std::string EncodeUint32(uint32_t number)
+{	
+	std::string out;
+
+	for (int i = 24; i >= 0; i -= 8)
+	{
+		out += static_cast<char>((number >> i) & 0xFF);
+	}
+
+	return out;
+}
+
+inline std::optional<uint32_t> DecodeUint32(std::string_view str)
+{
+	if (str.size() < 4)
+	{
+		return std::nullopt;
+	}
+
+	uint32_t number = 0;
+
+	for (int i = 0; i < 4; ++i)
+	{
+		number += static_cast<uint64_t>(static_cast<uint8_t>(str[3 - i])) << (i * 8);
+	}
+
+	return number;
 }

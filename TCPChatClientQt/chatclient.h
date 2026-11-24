@@ -28,9 +28,10 @@ private:
     WinsockInit winsock;
     Socket clientSocket;
     std::thread clientThread;
-    std::atomic<bool> isConnected = false;
 
+    std::atomic<bool> isConnected = false;
     QByteArray staged;
+    std::atomic<uint32_t> clientId = 0;
 
     void receiveLoop(std::string address, std::string nickname);
 

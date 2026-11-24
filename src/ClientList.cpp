@@ -85,3 +85,9 @@ void ClientList::Sender(const std::vector<std::shared_ptr<Connection>>& snapshot
 		}
 	}
 }
+
+uint32_t ClientList::NextId()
+{
+	uint32_t id = clientID++;
+	return id;
+}

@@ -256,6 +256,15 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
             throw HandshakeError("Wrong packet type");
         }
 
+        std::optional<uint32_t> clientIDopt = DecodeUint32(packet->content);
+
+        if (!clientIDopt)
+        {
+            throw HandshakeError("Malformed id packet");
+        }
+
+        clientId = *clientIDopt;
+
 		isConnected = true;
 		emit connected();
         

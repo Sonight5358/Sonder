@@ -72,6 +72,10 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 
 		std::cout << *name << " joined" << '\n';
 
+		size_t fileSize = 0;
+		std::string file;
+		bool isSending = false;
+
 		while (true)
 		{	
 			std::optional<Packet> message = Client->Recv();
@@ -95,6 +99,60 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 			{
 				std::cout << *name << ": image" << '\n';
 				list.BroadcastImage(Client, *name, message->content);
+				break;
+			}
+
+			case MessageType::FileBegin:
+			{	
+				if (isSending == true)
+				{
+					std::cerr << "Currently sending" << '\n';
+					break;
+				}
+
+				std::cout << *name << ": file begin" << '\n';
+
+				std::optional<uint32_t> decoded = DecodeUint32(message->content);
+				if (!decoded || *decoded <= 0 || *decoded > maxFileSize)
+				{
+					std::cerr << "Cant decode file begin" << '\n';
+					break;
+				}
+
+				isSending = true;
+				fileSize = static_cast<size_t>(*decoded);
+				break;
+			}
+
+			case MessageType::FileChunk:
+			{	
+				if (!isSending)
+				{	
+					std::cerr << "Not sending" << '\n';
+					break;
+				}
+
+				if (message->content.size() + file.size() > fileSize)
+				{
+					std::cerr << "Chunk is bigger than required size" << '\n';
+					fileSize = 0;
+					isSending = false;
+					file.clear();
+					break;
+				}
+
+				std::cout << *name << ": file chunk" << '\n';
+				file.append(message->content);
+
+				if (isSending && file.size() == fileSize)
+				{
+					std::cout << *name << ": file complete" << '\n';
+					list.BroadcastFile(Client, *name, file);
+					fileSize = 0;
+					isSending = false;
+					file.clear();
+				}
+
 				break;
 			}
 

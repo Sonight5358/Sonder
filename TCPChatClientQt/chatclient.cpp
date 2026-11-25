@@ -3,6 +3,7 @@
 #include "Address.h"
 #include "Retry.h"
 #include "HandshakeError.h"
+#include <unordered_map>
 
 #include <QDebug>
 
@@ -53,12 +54,6 @@ void ChatClient::stageImage(const QUrl& url)
 {
     QFile file(url.toLocalFile());
 
-    if (file.size() > maxImageSize)
-    {
-        qWarning() << "Image is too big";
-        return;
-    }
-
     bool result = file.open(QIODevice::ReadOnly);
 
     if (result == false)
@@ -102,18 +97,6 @@ bool ChatClient::stageClipboard()
     buffer.open(QIODevice::WriteOnly);
 
     image.save(&buffer, "PNG");
-    if (bytes.size() > maxImageSize)
-    {
-        bytes.clear();
-        buffer.seek(0);
-        image.save(&buffer, "JPEG", 80);
-
-        if (bytes.size() > maxImageSize)
-        {
-            emit stageFailed("Image is too big");
-            return true;
-        }
-    }
 
     buffer.close();
     stageBytes(bytes);
@@ -145,7 +128,17 @@ void ChatClient::sendStaged()
             return;
         }
 
-        SendPacket(clientSocket, MessageType::CTSI, std::string_view(staged.constData(), static_cast<size_t>(staged.size())));
+        std::string encoded = EncodeUint32(static_cast<uint32_t>(staged.size()));
+
+        SendPacket(clientSocket, MessageType::FileBegin, encoded);
+
+        const std::string_view bytes(staged.constData(), static_cast<size_t>(staged.size()));
+
+        for (size_t i = 0; i < bytes.size(); i += maxChunkSize)
+        {
+            std::string_view chunk = bytes.substr(i, maxChunkSize);
+            SendPacket(clientSocket, MessageType::FileChunk, chunk);
+        }
 
         emit imageSent(urlNsize->url, urlNsize->size);
         staged.clear();
@@ -267,7 +260,15 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
 
 		isConnected = true;
 		emit connected();
+
+        struct PendingFile
+        {
+            FileMessage info;
+            std::string content;
+        };
         
+        std::unordered_map<uint32_t, PendingFile> pendingFile;
+
 		while (true)
 		{
 			std::optional<Packet> message = RecvPacket(clientSocket);
@@ -295,25 +296,66 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
                 break;
             }
 
-            case MessageType::CTSI:
+            case MessageType::FileBegin:
             {
-                std::optional<HistoryMessage> nickNtextNtime = DecodeHistory(message->content);
+                std::optional<FileMessage> file = DecodeFile(message->content);
 
-                if (!nickNtextNtime)
+                if (!file)
                 {
                     qWarning() << "Malformed packet";
                     continue;
                 }
 
-                std::optional<UrlNSize> urlNsize = makeImageUrl(QByteArray::fromStdString(nickNtextNtime->text));
+                pendingFile.try_emplace(file->id, PendingFile{*file, {}});
 
-                if (!urlNsize)
+                break;
+            }
+
+            case MessageType::FileChunk:
+            {
+                std::optional<ClientID> chunk = DecodeClientID(message->content);
+
+                if (!chunk)
                 {
-                    qWarning() << "Invalid url";
+                    qWarning() << "Malformed packet";
                     continue;
                 }
 
-                emit imageReceived(QString::fromStdString(nickNtextNtime->nick), urlNsize->url, static_cast<qint64>(nickNtextNtime->timestamp), message->type == MessageType::History, urlNsize->size);
+                auto it = pendingFile.find(chunk->id);
+
+                if (it == pendingFile.end())
+                {
+                    break;
+                }
+
+                PendingFile& pending = it->second;
+
+                if (pending.info.size < pending.content.size() + chunk->other.size())
+                {
+                    pendingFile.erase(it);
+                    break;
+                }
+
+                pending.content.append(chunk->other);
+
+                if (pending.content.size() == pending.info.size)
+                {
+                    std::optional<UrlNSize> urlNsize = makeImageUrl(QByteArray::fromStdString(pending.content));
+
+                    if (!urlNsize)
+                    {
+                        pendingFile.erase(it);
+                        qWarning() << "Invalid url";
+                        continue;
+                    }
+
+                    emit imageReceived(QString::fromStdString(pending.info.nick), urlNsize->url, static_cast<qint64>(pending.info.timestamp), message->type == MessageType::History, urlNsize->size);
+
+                    qWarning() << "File complete " << chunk->id << ' ' << pending.content.size();
+                    pendingFile.erase(it);
+                }
+
+                break;
             }
 
             case MessageType::Handshake: case MessageType::Reject: case MessageType::STC:

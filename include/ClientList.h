@@ -29,6 +29,8 @@ public:
 
 	void BroadcastImage(const std::shared_ptr<Connection>& sender, std::string_view nick, std::string_view image);
 
+	void BroadcastFile(const std::shared_ptr<Connection>& sender, std::string_view nick, std::string_view file);
+
 	void Remove(const std::shared_ptr<Connection>& client);
 
 	uint32_t NextId();

@@ -56,6 +56,33 @@ void ClientList::BroadcastImage(const std::shared_ptr<Connection>& sender, std::
 	Sender(snapshot, sender, encoded, MessageType::CTSI);
 }
 
+void ClientList::BroadcastFile(const std::shared_ptr<Connection>& sender, std::string_view nick, std::string_view file)
+{
+	uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::system_clock::now().time_since_epoch()).count();
+
+	std::vector<std::shared_ptr<Connection>> snapshot;
+
+	const std::string encodedId = EncodeUint32(sender->GetId());
+	std::string encodedSize = EncodeUint32(static_cast<uint32_t>(file.size()));
+	std::string encoded = encodedId + encodedSize + EncodeTimestamp(now, nick);
+
+	{
+		std::lock_guard<std::mutex> lock(mutex);
+
+		snapshot = list;
+	}
+
+	Sender(snapshot, sender, encoded, MessageType::FileBegin);
+
+	for (size_t i = 0; i < file.size(); i += maxChunkSize)
+	{	
+		std::string chunk = encodedId;
+		chunk.append(file.substr(i, maxChunkSize));
+		Sender(snapshot, sender, chunk, MessageType::FileChunk);
+	}
+}
+
 void ClientList::Remove(const std::shared_ptr<Connection>& client)
 {
 	std::lock_guard<std::mutex> lock(mutex);

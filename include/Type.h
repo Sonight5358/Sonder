@@ -6,18 +6,20 @@
 #include <optional>
 #include <stdexcept>
 
-inline constexpr uint8_t protocolVer = 5;
+inline constexpr uint8_t protocolVer = 6;
 
 enum class MessageType : uint8_t
 {
-	Handshake,  // This type for sending nickname on connection
-	CTS,  // For sending text from client to serv
+	Handshake, // This type for sending nickname on connection
+	CTS, // For sending text from client to serv
 	STC, // For sending text and sender from serv to client
 	History, // To prevent notifiactions spam from history
 	Welcome,
 	Reject,
 	CTSI,
-	STCI
+	STCI,
+	FileBegin,
+	FileChunk
 };
 
 enum class RejectType : uint8_t
@@ -56,10 +58,30 @@ struct Timestamp
 	std::string other;
 };
 
-struct HistoryMessage
+struct ClientID
 {
+	uint32_t id;
+	std::string other;
+};
+
+struct Size
+{
+	uint32_t size;
+	std::string other;
+};
+
+struct HistoryMessage
+{	
 	std::string nick;
 	std::string text;
+	uint64_t timestamp;
+};
+
+struct FileMessage
+{
+	uint32_t id;
+	std::string nick;
+	uint32_t size;
 	uint64_t timestamp;
 };
 
@@ -196,6 +218,48 @@ inline std::optional<Timestamp> DecodeTimestamp(std::string_view str)
 	return out;
 }
 
+inline std::optional<ClientID> DecodeClientID(std::string_view str)
+{
+	if (str.size() < 4)
+	{
+		return std::nullopt;
+	}
+
+	uint32_t id = 0;
+
+	for (int i = 0; i < 4; ++i)
+	{
+		id += static_cast<uint32_t>(static_cast<uint8_t>(str[3 - i])) << (i * 8);
+	}
+
+	std::string_view other = str.substr(4);
+
+	ClientID out = { id, std::string(other) };
+
+	return out;
+}
+
+inline std::optional<Size> DecodeSize(std::string_view str)
+{
+	if (str.size() < 4)
+	{
+		return std::nullopt;
+	}
+
+	uint32_t size = 0;
+
+	for (int i = 0; i < 4; ++i)
+	{
+		size += static_cast<uint32_t>(static_cast<uint8_t>(str[3 - i])) << (i * 8);
+	}
+
+	std::string_view other = str.substr(4);
+
+	Size out = { size, std::string(other) };
+
+	return out;
+}
+
 inline std::optional<HistoryMessage> DecodeHistory(std::string_view str)
 {
 	std::optional<Timestamp> timeDec = DecodeTimestamp(str);
@@ -244,4 +308,32 @@ inline std::optional<uint32_t> DecodeUint32(std::string_view str)
 	}
 
 	return number;
+}
+
+inline std::optional<FileMessage> DecodeFile(std::string_view str)
+{
+	std::optional<ClientID> clientId = DecodeClientID(str);
+
+	if (!clientId)
+	{
+		return std::nullopt;
+	}
+
+	std::optional<Size> sizeDec = DecodeSize(clientId->other);
+
+	if (!sizeDec)
+	{
+		return std::nullopt;
+	}
+
+	std::optional<Timestamp> timeDec = DecodeTimestamp(sizeDec->other);
+
+	if (!timeDec)
+	{
+		return std::nullopt;
+	}
+
+	FileMessage out = { clientId->id, timeDec->other, sizeDec->size, timeDec->time };
+
+	return out;
 }

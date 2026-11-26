@@ -10,6 +10,9 @@
 #include <QImageReader>
 #include <QGuiApplication>
 #include <QClipboard>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
 
 #include "WinsockInit.h"
 #include "Socket.h"
@@ -20,6 +23,18 @@ struct UrlNSize
     QSize size;
 };
 
+enum class SendType
+{
+    Text,
+    Image
+};
+
+struct SendByType
+{
+    SendType type;
+    QByteArray bytes;
+};
+
 class ChatClient : public QObject
 {
     Q_OBJECT
@@ -27,11 +42,19 @@ class ChatClient : public QObject
 private:
     WinsockInit winsock;
     Socket clientSocket;
-    std::thread clientThread;
 
+    std::thread clientThread;
     std::atomic<bool> isConnected = false;
     QByteArray staged;
     std::atomic<uint32_t> clientId = 0;
+
+    std::thread sendThread;
+    std::queue<SendByType> outgoing;
+    std::mutex outgoingMutex;
+    std::condition_variable outgoingReady;
+    bool stopSending = false;
+
+    void sendLoop();
 
     void receiveLoop(std::string address, std::string nickname);
 
@@ -59,10 +82,16 @@ public:
 signals:
     void messageReceived(const QString& sender, const QString& text, qint64 timestamp, bool isHistory);
     void imageReceived(const QString& sender, const QString& url, qint64 timestamp, bool isHistory, const QSize size);
-    void imageSent(const QString& url, const QSize size);
+
 
     void stageChanged(const QString& url, const QSize size);
     void stageFailed(const QString& reason);
+
+    // Image
+    void imageSendStarted(const QString& url, const QSize size, quint32 totalBytes);
+    void imageProgressChanged(quint32 sentBytes);
+    void imageSent();
+    void imageFailed();
 
     void connected();
     void disconnected();

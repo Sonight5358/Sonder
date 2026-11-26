@@ -44,12 +44,32 @@ Item{
 
     function addMessage(sender, text, timestamp, mine){
         messageModel.insert(0, {nick: sender, messageText: text, timeStamp: timestamp, isMine: mine,
-                                isImage: false, imageWidth: 0, imageHeight: 0, imageSource: ""})
+                                isImage: false, imageWidth: 0, imageHeight: 0, imageSource: "", totalToSend: 0,
+                            sentBytes: 0, isSending: false, isFailed: false})
     }
-    function addImage(sender, url, timestamp, mine, width, height){
+    function addImage(sender, url, timestamp, mine, width, height, total){
         messageModel.insert(0, {nick: sender, imageSource: url, timeStamp: timestamp, isMine: mine,
-                            messageText: "", isImage: true, imageWidth: width, imageHeight: height})
+                            messageText: "", isImage: true, imageWidth: width, imageHeight: height, totalToSend: total,
+                            sentBytes: 0, isSending: total > 0, isFailed: false})
     }
+    function updateImageProgress(sent){
+        for (let i = 0; i < messageModel.count; ++i){
+            if (messageModel.get(i).isSending){
+                messageModel.setProperty(i, "sentBytes", sent)
+                return
+            }
+        }
+    }
+    function finishImageSend(success){
+        for (let i = 0; i < messageModel.count; ++i){
+            if (messageModel.get(i).isSending){
+                messageModel.setProperty(i, "isSending", false)
+                messageModel.setProperty(i, "isFailed", !success)
+                return
+            }
+        }
+    }
+
 
     function deleteMessage(i){
         if(i >= 0 && i < messageModel.count){

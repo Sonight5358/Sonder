@@ -462,9 +462,17 @@ ApplicationWindow{
             }
         }
 
+        function onStageChanged(url, size){
+            messageSendArea.stagedUrl = url
+            if (messageSendArea.stagedUrl !== ""){
+                messageSendArea.shownUrl = messageSendArea.stagedUrl
+            }
+        }
+
+        // Image
         function onImageReceived(sender, url, timestamp, isHistory, size){
             // sender, url, timestamp, mine, width, height
-            rectChat.addImage(sender, url, timestamp, settings.nickname === sender, size.width, size.height)
+            rectChat.addImage(sender, url, timestamp, settings.nickname === sender, size.width, size.height, 0)
 
             if ((!appWindow.active) && appWindow.notified === false && isHistory === false)
             {
@@ -475,16 +483,17 @@ ApplicationWindow{
                 appWindow.notified = true
             }
         }
-
-        function onStageChanged(url, size){
-            messageSendArea.stagedUrl = url
-            if (messageSendArea.stagedUrl !== ""){
-                messageSendArea.shownUrl = messageSendArea.stagedUrl
-            }
+        function onImageSendStarted(url, size, total){
+            rectChat.addImage(settings.nickname, url, Date.now(), true, size.width, size.height, total)
         }
-
-        function onImageSent(url, size){
-            rectChat.addImage(settings.nickname, url, Date.now(), true, size.width, size.height)
+        function onImageProgressChanged(sent){
+            rectChat.updateImageProgress(sent);
+        }
+        function onImageFailed(){
+            rectChat.finishImageSend(false)
+        }
+        function onImageSent(){
+            rectChat.finishImageSend(true)
         }
 
         function onConnected() {

@@ -60,7 +60,8 @@ qt_add_qml_module(Sonder
         assets/icons/headphones.svg
         assets/icons/video.svg
         assets/icons/x.svg
-        assets/sonder.ico 
+        assets/icons/square-exclamation-point.svg
+        assets/sonder.ico
 )
 
 qt_add_shaders(Sonder "app_shaders"

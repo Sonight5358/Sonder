@@ -28,7 +28,14 @@ void ChatClient::sendMessage(const QString &message)
             return;
         }
 
-        SendPacket(clientSocket, MessageType::CTS, message.toStdString());
+        QByteArray text = message.toUtf8();
+
+        {
+            std::lock_guard<std::mutex> lock(outgoingMutex);
+            outgoing.push({ SendType::Text, text }) ;
+        }
+
+        outgoingReady.notify_one();
     }
 
     catch (const SocketError& e)
@@ -128,19 +135,15 @@ void ChatClient::sendStaged()
             return;
         }
 
-        std::string encoded = EncodeUint32(static_cast<uint32_t>(staged.size()));
+        emit imageSendStarted(urlNsize->url, urlNsize->size, static_cast<quint32>(staged.size()));
 
-        SendPacket(clientSocket, MessageType::FileBegin, encoded);
-
-        const std::string_view bytes(staged.constData(), static_cast<size_t>(staged.size()));
-
-        for (size_t i = 0; i < bytes.size(); i += maxChunkSize)
         {
-            std::string_view chunk = bytes.substr(i, maxChunkSize);
-            SendPacket(clientSocket, MessageType::FileChunk, chunk);
+            std::lock_guard<std::mutex> lock(outgoingMutex);
+            outgoing.push( {SendType::Image, staged} );
         }
 
-        emit imageSent(urlNsize->url, urlNsize->size);
+        outgoingReady.notify_one();
+
         staged.clear();
         emit stageChanged("", QSize());
     }
@@ -150,17 +153,26 @@ void ChatClient::sendStaged()
         if (e.code() == ConnShutdown)
         {
             qWarning() << "Connection closed";
+            staged.clear();
+            emit stageChanged("", QSize());
+            emit imageFailed();
         }
 
         else
         {
             qWarning() << e.what();
+            staged.clear();
+            emit stageChanged("", QSize());
+            emit imageFailed();
         }
     }
 
     catch (const std::length_error&)
     {
         qWarning() << "Message is too long";
+        staged.clear();
+        emit stageChanged("", QSize());
+        emit imageFailed();
     }
 }
 
@@ -178,6 +190,12 @@ void ChatClient::clearStaged()
 
 ChatClient::~ChatClient()
 {
+    {
+        std::lock_guard<std::mutex> lock(outgoingMutex);
+        stopSending = true;
+        outgoingReady.notify_one();
+    }
+
     try
     {
         clientSocket.Shutdown(ShutBoth);
@@ -186,6 +204,11 @@ ChatClient::~ChatClient()
     catch (...)
     {
 
+    }
+
+    if (sendThread.joinable())
+    {
+        sendThread.join();
     }
 
     if (clientThread.joinable())
@@ -201,7 +224,112 @@ void ChatClient::connectToServer(const QString &address, const QString &nickname
         return;
     }
 
-    clientThread = std::thread(&ChatClient::receiveLoop, this, address.toStdString(), nickname.toStdString()); // Info to loop
+    clientThread = std::thread(&ChatClient::receiveLoop, this, address.toStdString(), nickname.toStdString());
+    sendThread = std::thread(&ChatClient::sendLoop, this);
+}
+
+void ChatClient::sendLoop()
+{
+    while (true)
+    {
+        std::unique_lock<std::mutex> lock(outgoingMutex);
+
+        while (!stopSending && outgoing.empty())
+        {
+            outgoingReady.wait(lock);
+        }
+
+        if (stopSending)
+        {
+            return;
+        }
+
+        SendByType job = std::move(outgoing.front());
+        outgoing.pop();
+        lock.unlock();
+
+        const std::string_view bytes(job.bytes.constData(), static_cast<std::size_t>(job.bytes.size()));
+
+        switch (job.type){
+
+        case SendType::Text:
+        {
+            try
+            {
+                SendPacket(clientSocket, MessageType::CTS, bytes);
+            }
+
+            catch (const SocketError& e)
+            {
+                if (e.code() == ConnShutdown)
+                {
+                    qWarning() << "Connection closed";
+                }
+
+                else
+                {
+                    qWarning() << e.what();
+                }
+            }
+
+            catch (const std::length_error&)
+            {
+                qWarning() << "Message is too long";
+            }
+
+            break;
+        }
+
+        case SendType::Image:
+        {
+            try
+            {
+                std::string encoded = EncodeUint32(static_cast<uint32_t>(bytes.size()));
+                SendPacket(clientSocket, MessageType::FileBegin, encoded);
+
+                quint32 totalSent = 0;
+                for (size_t i = 0; i < bytes.size(); i += maxChunkSize)
+                {
+                    std::string_view chunk = bytes.substr(i, maxChunkSize);
+                    SendPacket(clientSocket, MessageType::FileChunk, chunk);
+                    totalSent += static_cast<quint32>(chunk.size());
+                    emit imageProgressChanged(totalSent);
+                }
+
+                emit imageSent();
+            }
+
+            catch (const SocketError& e)
+            {
+                if (e.code() == ConnShutdown)
+                {
+                    qWarning() << "Connection closed";
+                }
+
+                else
+                {
+                    qWarning() << e.what();
+                }
+
+                emit imageFailed();
+            }
+
+            catch (const std::length_error&)
+            {
+                qWarning() << "Message is too long";
+                emit imageFailed();
+            }
+
+            break;
+        }
+
+        default:
+        {
+            break;
+        }
+
+        }
+    }
 }
 
 void ChatClient::receiveLoop(std::string address, std::string nickname)

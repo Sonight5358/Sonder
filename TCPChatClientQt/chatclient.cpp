@@ -468,6 +468,7 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
 
                 if (pending.content.size() == pending.info.size)
                 {
+                    qWarning() << "File bytes received:" << chunk->id << pending.content.size();
                     std::optional<UrlNSize> urlNsize = makeImageUrl(QByteArray::fromStdString(pending.content));
 
                     if (!urlNsize)
@@ -564,7 +565,7 @@ std::optional<UrlNSize> ChatClient::makeImageUrl(const QByteArray& bytes)
         return std::nullopt;
     }
 
-    if (image.width() > 8192 || image.height() > 8192 ||
+    if (image.width() > 16384 || image.height() > 16384 ||
         image.width() <= 0 || image.height() <= 0)
     {
         qWarning() << "Image size is too big or invalid";

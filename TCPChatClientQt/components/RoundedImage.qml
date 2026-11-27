@@ -29,7 +29,7 @@ Item{
         anchors.margins: 1
 
         source: photoFrame.source
-        sourceSize: Qt.size(width * dpr, height * dpr)
+        sourceSize: Qt.size(2048, 2048)
         fillMode: Image.PreserveAspectCrop
 
         layer.enabled: true

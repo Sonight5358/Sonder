@@ -52,7 +52,7 @@ Item{
         width: column.width + 24
         height: column.implicitHeight + 16
 
-        x: delegateRoot.isMine ? delegateRoot.width - width - 16 : 16
+        x: delegateRoot.isMine ? delegateRoot.width - width - 22 : 22
 
         color: delegateRoot.isMine? Qt.alpha("#2E2E2E", opacityPanels) : Qt.alpha(panelsColor, opacityPanels)
         radius: windowsRadius

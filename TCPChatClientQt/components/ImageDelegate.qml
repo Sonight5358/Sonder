@@ -35,7 +35,7 @@ Item{
         Text{
             id: nickname
 
-            x: 28
+            x: 25
 
             text: delegateRoot.nick
             font: root.appSmallFont
@@ -74,7 +74,7 @@ Item{
             width: Math.min(delegateRoot.imageWidth / dpr, delegateRoot.maxContentWidth)
             height:  delegateRoot.imageHeight * width / delegateRoot.imageWidth
 
-            x: delegateRoot.isMine ? delegateRoot.width - width - 16 : 16
+            x: delegateRoot.isMine ? delegateRoot.width - width - 22 : 22
 
             Rectangle{
                 width: delegateRoot.isFailed ? 54 : 35

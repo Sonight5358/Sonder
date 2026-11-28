@@ -69,6 +69,7 @@ qt_add_shaders(Sonder "app_shaders"
     FILES
         assets/DitheringShader.frag
         assets/ButtonShader.frag
+        assets/DroperShader.frag
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

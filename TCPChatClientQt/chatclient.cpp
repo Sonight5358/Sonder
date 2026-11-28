@@ -385,6 +385,7 @@ void ChatClient::receiveLoop(std::string address, std::string nickname)
         }
 
         clientId = *clientIDopt;
+        qWarning() << "Connected as " << *clientIDopt;
 
 		isConnected = true;
 		emit connected();

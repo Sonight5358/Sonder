@@ -141,7 +141,7 @@ void ReceiveThread(std::shared_ptr<Connection> Client, ClientList& list)
 					break;
 				}
 
-				std::cout << *name << ": file chunk" << '\n';
+				//std::cout << *name << ": file chunk" << '\n';
 				file.append(message->content);
 
 				if (isSending && file.size() == fileSize)

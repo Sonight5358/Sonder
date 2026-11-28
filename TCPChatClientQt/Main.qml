@@ -149,6 +149,8 @@ ApplicationWindow{
                 }
             }
         }
+
+
     }
 
     // List of chats
@@ -386,6 +388,46 @@ ApplicationWindow{
                     easing.type: Easing.OutCubic
                 }
             }
+        }
+    }
+
+    DropArea{
+        id: droper
+
+        anchors.fill: rectChat
+
+        onDropped: function(drop){
+            if (drop.hasUrls && drop.urls.length === 1){
+                chatClient.stageImage(drop.urls[0])
+            }
+        }
+    }
+
+    ShaderEffect{
+        id: droperShader
+
+        anchors.fill: rectChat
+        fragmentShader: "qrc:/shaders/assets/DroperShader.frag.qsb"
+
+        opacity: droper.containsDrag ? 1 : 0
+
+        Behavior on opacity{
+            NumberAnimation{
+                duration: 250
+            }
+        }
+
+
+        property size size: Qt.size(width, height)
+        property real progress: 0
+
+        NumberAnimation on progress{
+            duration: 2000
+            from: 0
+            to: 2
+            loops: Animation.Infinite
+            easing.type: Easing.Linear
+            running: droper.containsDrag || droperShader.opacity > 0
         }
     }
 

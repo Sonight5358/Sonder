@@ -107,7 +107,8 @@ void ClientList::Sender(const std::vector<std::shared_ptr<Connection>>& snapshot
 
 			catch (const std::exception& e)
 			{
-				std::cout << "Sending exception: " << e.what() << '\n';
+				std::cerr << "Send failed from:" << sender->GetId() << " to:" << x->GetId() 
+					<< " type: " << static_cast<int>(type) << ": " << e.what() << '\n';
 			}
 		}
 	}
